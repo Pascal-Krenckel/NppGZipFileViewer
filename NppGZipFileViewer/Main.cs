@@ -114,9 +114,10 @@ namespace Kbg.NppPluginNET
         }
 
         private static bool ShouldBeCompressed(ScNotification notification)
-        {
-            // if ".gz" file
+        {           
             var newPath = NppGZipFileViewerHelper.GetFilePath(notification).ToString();
+
+            // if file with GZip suffix
             if (Preferences.HasGZipSuffix(newPath)) return true;
 
             // no path change -> file tracked
@@ -124,17 +125,16 @@ namespace Kbg.NppPluginNET
             if (newPath == oldPath)
                 return fileTracker.Contains(notification.Header.IdFrom);
 
-            // path changed, but not tracked -> false
+            // path changed (not GZip suffix,already handled), but not tracked -> false
             if (!fileTracker.Contains(notification.Header.IdFrom))
                 return false;
-            // path changed, from gz (tracked), to not -> do not store
+
+            // path changed, from gz (tracked), to not -> do not compress
             if (Preferences.HasGZipSuffix(oldPath))
                 return false;
 
-            // path changed && tracked:
-
-            // -> same ext
-            return Path.GetExtension(oldPath) == Path.GetExtension(newPath);
+            // path changed && tracked -> true, create a copy if compression is not wanted
+            return true;
         }
 
         private static void TryDecompress(ScNotification notification)
