@@ -68,9 +68,9 @@ namespace Kbg.NppPluginNET
                             if (toCompress)
                                 fileTracker.Include(notification.Header.IdFrom, path);
                             else fileTracker.Remove(notification.Header.IdFrom);
-                            Win32.SendMessage(PluginBase.nppData._nppHandle, (uint)NppMsg.NPPM_SWITCHTOFILE, notification.Header.IdFrom, path);
-                            Win32.SendMessage(PluginBase.nppData._nppHandle, (uint)NppMsg.NPPM_MAKECURRENTBUFFERDIRTY, 0, 0);
-                            Win32.SendMessage(PluginBase.nppData._nppHandle, (uint)NppMsg.NPPM_SAVECURRENTFILE, 0, 0);
+                            nppGateway.SwitchToFile(path);
+                            nppGateway.MakeCurrentBufferDirty();
+                            nppGateway.SaveCurrentFile();
                             return;
                         }
 
@@ -112,7 +112,6 @@ namespace Kbg.NppPluginNET
         {
             nppGateway.SetMenuItemCheck("Compress", fileTracker.Contains(from));
         }
-
 
         private static bool ShouldBeCompressed(ScNotification notification)
         {
@@ -237,7 +236,10 @@ namespace Kbg.NppPluginNET
                 if (Preferences.HasGZipSuffix(nppGateway.GetFullPathFromBufferId(bufferId)))
                     MessageBox.Show("This files suffix is a gzip suffix. This file will always be compressed.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 else
+                {
                     fileTracker.Remove(bufferId);
+                    nppGateway.M
+                }
             else
                 fileTracker.Include(bufferId, nppGateway.GetFullPathFromBufferId(bufferId));
 
