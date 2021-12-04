@@ -238,10 +238,13 @@ namespace Kbg.NppPluginNET
                 else
                 {
                     fileTracker.Remove(bufferId);
-                    nppGateway.M
+                    nppGateway.MakeCurrentBufferDirty();
                 }
             else
+            {
                 fileTracker.Include(bufferId, nppGateway.GetFullPathFromBufferId(bufferId));
+                nppGateway.MakeCurrentBufferDirty();
+            }
 
             UpdateCommandChecked(bufferId);
             UpdateStatusbar(bufferId);           
