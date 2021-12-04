@@ -92,6 +92,25 @@ namespace Kbg.NppPluginNET.PluginInfrastructure
 			return Win32.SendMessage(NppHandle, NppMsg.NPPM_GETCURRENTBUFFERID, 0, 0);
 		}
 
+        internal void MakeCurrentBufferDirty()
+        {
+			Win32.SendMessage(NppHandle, NppMsg.NPPM_MAKECURRENTBUFFERDIRTY, 0, 0);
+		}
+
+        internal void SwitchToFile(StringBuilder path)
+        {
+			Win32.SendMessage(NppHandle, NppMsg.NPPM_SWITCHTOFILE, 0, path);
+		}
+
+        internal void SaveCurrentFile()
+        {
+			Win32.SendMessage(NppHandle, NppMsg.NPPM_SAVECURRENTFILE, 0, 0);
+		}
+
+        internal void SwitchToFile(string path)
+		{
+			Win32.SendMessage(NppHandle, NppMsg.NPPM_SWITCHTOFILE, 0, path);
+		}
 	}
 
 	/// <summary>
