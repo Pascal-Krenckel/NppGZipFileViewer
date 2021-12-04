@@ -55,8 +55,7 @@ namespace NppGZipFileViewer
         internal static MemoryStream Encode(Stream stream)
         {
             MemoryStream encodedStream = new MemoryStream();
-            using GZipStream encoder = new GZipStream(encodedStream, CompressionMode.Compress, true);
-                       
+            using GZipStream encoder = new GZipStream(encodedStream, CompressionMode.Compress, true);                       
             stream.CopyTo(encoder);
             return encodedStream;
         }
