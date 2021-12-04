@@ -302,6 +302,28 @@ namespace Kbg.NppPluginNET.PluginInfrastructure
         /// If gateways are missing or incomplete, please help extend them and send your code to the project 
         /// at https://github.com/kbilsted/NotepadPlusPlusPluginPack.Net
         /// </summary>
+        public static IntPtr SendMessage(IntPtr hWnd, NppMsg Msg, int wParam, string lParam)
+        {
+            return SendMessage(hWnd, (UInt32)Msg, wParam, lParam);
+        }
+
+        /// <summary>
+        /// You should try to avoid calling this method in your plugin code. Rather use one of the gateways such as 
+        /// <see cref="ScintillaGateway"/> or <see cref="NotepadPPGateway"/>.  
+        /// If gateways are missing or incomplete, please help extend them and send your code to the project 
+        /// at https://github.com/kbilsted/NotepadPlusPlusPluginPack.Net
+        /// </summary>
+        public static IntPtr SendMessage(IntPtr hWnd, NppMsg Msg, int wParam, StringBuilder lParam)
+        {
+            return SendMessage(hWnd, (UInt32)Msg, wParam, lParam);
+        }
+
+        /// <summary>
+        /// You should try to avoid calling this method in your plugin code. Rather use one of the gateways such as 
+        /// <see cref="ScintillaGateway"/> or <see cref="NotepadPPGateway"/>.  
+        /// If gateways are missing or incomplete, please help extend them and send your code to the project 
+        /// at https://github.com/kbilsted/NotepadPlusPlusPluginPack.Net
+        /// </summary>
         public static IntPtr SendMessage(IntPtr hWnd, NppMsg Msg, IntPtr wParam, IntPtr lParam)
         {
             return SendMessage(hWnd, (UInt32)Msg, wParam, (lParam));
