@@ -1,9 +1,7 @@
 ﻿using Kbg.NppPluginNET.PluginInfrastructure;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -18,7 +16,7 @@ namespace NppGZipFileViewer
             return path;
         }
 
-        internal static MemoryStream GetContentStream(ScNotification notification,StringBuilder path)
+        internal static MemoryStream GetContentStream(ScNotification notification, StringBuilder path)
         {
             Win32.SendMessage(PluginBase.nppData._nppHandle, (uint)NppMsg.NPPM_SWITCHTOFILE, notification.Header.IdFrom, path);
 
@@ -55,7 +53,7 @@ namespace NppGZipFileViewer
         internal static MemoryStream Encode(Stream stream)
         {
             MemoryStream encodedStream = new MemoryStream();
-            using GZipStream encoder = new GZipStream(encodedStream, CompressionMode.Compress, true);                       
+            using GZipStream encoder = new GZipStream(encodedStream, CompressionMode.Compress, true);
             stream.CopyTo(encoder);
             return encodedStream;
         }

@@ -1,7 +1,6 @@
 ﻿// NPP plugin platform for .Net v0.94.00 by Kasper B. Graversen etc.
 using System;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace Kbg.NppPluginNET.PluginInfrastructure
 {
@@ -16,11 +15,11 @@ namespace Kbg.NppPluginNET.PluginInfrastructure
         public readonly int Red, Green, Blue;
 
         public Colour(int rgb)
-		{
-			Red = rgb & 0xFF;
-			Green = (rgb >> 8) & 0xFF;
-			Blue = (rgb >> 16) & 0xFF;
-		}
+        {
+            Red = rgb & 0xFF;
+            Green = (rgb >> 8) & 0xFF;
+            Blue = (rgb >> 16) & 0xFF;
+        }
 
         /// <summary>
         /// 
@@ -30,11 +29,11 @@ namespace Kbg.NppPluginNET.PluginInfrastructure
         /// <param name="blue">a number 0-255</param>
         public Colour(int red, int green, int blue)
         {
-            if(red > 255 || red < 0)
+            if (red > 255 || red < 0)
                 throw new ArgumentOutOfRangeException("red", "must be 0-255");
-            if(green > 255 || green < 0)
+            if (green > 255 || green < 0)
                 throw new ArgumentOutOfRangeException("green", "must be 0-255");
-            if(blue > 255 || blue < 0)
+            if (blue > 255 || blue < 0)
                 throw new ArgumentOutOfRangeException("blue", "must be 0-255");
             Red = red;
             Green = green;
@@ -87,13 +86,13 @@ namespace Kbg.NppPluginNET.PluginInfrastructure
 
         public static bool operator ==(Position a, Position b)
         {
-	        if (ReferenceEquals(a, b))
-		        return true;
-			if (ReferenceEquals(a, null))
-				return false;
-			if (ReferenceEquals(b, null))
-				return false;
-			return  a.pos == b.pos;
+            if (ReferenceEquals(a, b))
+                return true;
+            if (ReferenceEquals(a, null))
+                return false;
+            if (ReferenceEquals(b, null))
+                return false;
+            return a.pos == b.pos;
         }
 
         public static bool operator !=(Position a, Position b)
@@ -118,14 +117,14 @@ namespace Kbg.NppPluginNET.PluginInfrastructure
             return b;
         }
 
-		public static Position Max(Position a, Position b)
-		{
-			if (a > b)
-				return a;
-			return b;
-		}
+        public static Position Max(Position a, Position b)
+        {
+            if (a > b)
+                return a;
+            return b;
+        }
 
-		public override string ToString()
+        public override string ToString()
         {
             return "Postion: " + pos;
         }
@@ -177,7 +176,7 @@ namespace Kbg.NppPluginNET.PluginInfrastructure
         /// </summary>
         public KeyModifier(SciMsg SCK_KeyCode, SciMsg SCMOD_modifier)
         {
-            value = (int) SCK_KeyCode | ((int) SCMOD_modifier << 16);
+            value = (int)SCK_KeyCode | ((int)SCMOD_modifier << 16);
         }
 
         public int Value

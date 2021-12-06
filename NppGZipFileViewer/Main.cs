@@ -1,42 +1,38 @@
-﻿using System;
+﻿using Kbg.NppPluginNET.PluginInfrastructure;
+using NppGZipFileViewer;
+using NppGZipFileViewer.Forms;
+using System;
+using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-using System.IO.Compression;
-using Kbg.NppPluginNET.PluginInfrastructure;
-using NppGZipFileViewer;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using NppGZipFileViewer.Forms;
 
 namespace Kbg.NppPluginNET
 {
     class Main
     {
         internal const string PluginName = "NppGZipFileViewer";
-        
+
         static FileTracker fileTracker = new FileTracker();
         static string iniFilePath = null;
-        
+
         static Bitmap tbBmp = NppGZipFileViewer.Properties.Resources.gzip_filled16;
-        
-        
+
+
         static Dictionary<IntPtr, Position> cursorPosition = new Dictionary<IntPtr, Position>();
         static Preferences Preferences { get; set; }
         static NotepadPPGateway nppGateway;
         static ScintillaGateway scintillaGateway;
-        
+
         public static void OnNotification(ScNotification notification)
-        {            
+        {
             switch (notification.Header.Code)
             {
                 case (uint)NppMsg.NPPN_FILEOPENED:
                     if (Preferences.DecompressAll || Preferences.HasGZipSuffix(NppGZipFileViewerHelper.GetFilePath(notification)))
-                        TryDecompress(notification);                  
+                        TryDecompress(notification);
                     break;
                 case (uint)NppMsg.NPPN_FILEBEFORESAVE:
                     try
@@ -54,15 +50,15 @@ namespace Kbg.NppPluginNET
                         NppGZipFileViewerHelper.SetText(encodedContentStream);
                         scintillaGateway.EndUndoAction();
                     }
-                    catch(Exception ex) { }
+                    catch (Exception ex) { }
                     break;
                 case (uint)NppMsg.NPPN_FILESAVED:
                     {
                         var path = NppGZipFileViewerHelper.GetFilePath(notification);
                         bool toCompress = ShouldBeCompressed(notification);
                         bool wasCompressed = cursorPosition.ContainsKey(notification.Header.IdFrom);
-                        
-                        if(wasCompressed != toCompress)
+
+                        if (wasCompressed != toCompress)
                         {
                             // save again, but update file tracker based on toCompressed
                             if (toCompress)
@@ -74,13 +70,13 @@ namespace Kbg.NppPluginNET
                             return;
                         }
 
-                        else if(wasCompressed) // if compressed we need to undo the changes
-                        { 
+                        else if (wasCompressed) // if compressed we need to undo the changes
+                        {
                             scintillaGateway.Undo();
                             scintillaGateway.GotoPos(cursorPosition[notification.Header.IdFrom]);
                             scintillaGateway.EmptyUndoBuffer();
                             scintillaGateway.SetSavePoint();
-                        }                        
+                        }
                         cursorPosition.Remove(notification.Header.IdFrom);
                     }
                     break;
@@ -98,11 +94,11 @@ namespace Kbg.NppPluginNET
             }
 
         }
-        
+
         private static void UpdateStatusbar(IntPtr from)
         {
             string str;
-            var enc = Encoding.GetEncoding( scintillaGateway.GetCodePage());
+            var enc = Encoding.GetEncoding(scintillaGateway.GetCodePage());
             if (fileTracker.Contains(from))
                 str = $"gzip/{enc.WebName}";
             else str = $"{enc.WebName}";
@@ -114,7 +110,7 @@ namespace Kbg.NppPluginNET
         }
 
         private static bool ShouldBeCompressed(ScNotification notification)
-        {           
+        {
             var newPath = NppGZipFileViewerHelper.GetFilePath(notification).ToString();
 
             // if file with GZip suffix
@@ -140,10 +136,10 @@ namespace Kbg.NppPluginNET
         private static void TryDecompress(ScNotification notification)
         {
             var path = NppGZipFileViewerHelper.GetFilePath(notification);
-                       
+
 
             using var gzContentStream = NppGZipFileViewerHelper.GetContentStream(notification, path);
-            
+
             try
             {
                 using var decodedContentStream = NppGZipFileViewerHelper.Decode(gzContentStream);
@@ -151,14 +147,14 @@ namespace Kbg.NppPluginNET
                 Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_GOTOPOS, 0, 0);
                 Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_EMPTYUNDOBUFFER, 0, 0);
                 Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_SETSAVEPOINT, 0, 0);
-                fileTracker.Include(notification.Header.IdFrom,path);
+                fileTracker.Include(notification.Header.IdFrom, path);
             }
-            catch(InvalidDataException ex)
+            catch (InvalidDataException ex)
             {
                 if (Preferences.HasGZipSuffix(path))
-                    fileTracker.Include(notification.Header.IdFrom,path);
+                    fileTracker.Include(notification.Header.IdFrom, path);
             }
-            
+
         }
         internal static void CommandMenuInit()
         {
@@ -170,18 +166,18 @@ namespace Kbg.NppPluginNET
             iniFilePath = sbIniFilePath.ToString();
             if (!Directory.Exists(iniFilePath)) Directory.CreateDirectory(iniFilePath);
             iniFilePath = Path.Combine(iniFilePath, PluginName + ".config");
-            
+
             try
             {
                 Preferences = Preferences.Deserialize(iniFilePath);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Preferences = new Preferences(false, ".gz");
             }
 
-            PluginBase.SetCommand(0, "Compress", ToogleCompress,false);
-            PluginBase.SetCommand(1, "---",null);
+            PluginBase.SetCommand(0, "Compress", ToogleCompress, false);
+            PluginBase.SetCommand(1, "---", null);
             PluginBase.SetCommand(2, "Settings", OpenSettings);
             PluginBase.SetCommand(3, "About", OpenAbout);
             PluginBase.SetCommand(3, "Credits", OpenCredits);
@@ -226,9 +222,9 @@ namespace Kbg.NppPluginNET
 
         internal static void PluginCleanUp()
         {
-            Preferences.Serialize(iniFilePath);    
+            Preferences.Serialize(iniFilePath);
         }
-        
+
         internal static void ToogleCompress()
         {
             IntPtr bufferId = nppGateway.GetCurrentBufferId();
@@ -247,7 +243,7 @@ namespace Kbg.NppPluginNET
             }
 
             UpdateCommandChecked(bufferId);
-            UpdateStatusbar(bufferId);           
+            UpdateStatusbar(bufferId);
         }
     }
 }

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace NppGZipFileViewer
 {
@@ -14,14 +12,15 @@ namespace NppGZipFileViewer
         {
             Include(id, path.ToString());
         }
-        public void Include(IntPtr id,string path) {
+        public void Include(IntPtr id, string path)
+        {
             zippedFiles.Add(id);
             if (zippedFilePathes.ContainsKey(id))
                 zippedFilePathes.Add(id, path);
             else zippedFilePathes[id] = path;
         }
 
-        public void Remove(IntPtr id) {  zippedFiles.Remove(id); zippedFilePathes.Remove(id); }
+        public void Remove(IntPtr id) { zippedFiles.Remove(id); zippedFilePathes.Remove(id); }
 
         public bool Contains(IntPtr id) { return zippedFiles.Contains(id); }
 

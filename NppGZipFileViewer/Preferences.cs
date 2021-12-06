@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace NppGZipFileViewer
@@ -13,19 +12,19 @@ namespace NppGZipFileViewer
     {
         public bool DecompressAll { get; set; }
         public List<string> Extensions { get; set; }
-        
-       
+
+
         public Preferences() : this(false) { }
-        public Preferences(bool decompressAll,IEnumerable<string> exts)
+        public Preferences(bool decompressAll, IEnumerable<string> exts)
         {
             Extensions = exts.ToList();
             DecompressAll = decompressAll;
         }
-        public Preferences(bool decompressAll, params string[] exts) :this(decompressAll,(IEnumerable<string>) exts)
+        public Preferences(bool decompressAll, params string[] exts) : this(decompressAll, (IEnumerable<string>)exts)
         {
         }
 
-        
+
 
         public bool HasGZipSuffix(string path)
         {
@@ -38,7 +37,7 @@ namespace NppGZipFileViewer
 
         public void Serialize(string path)
         {
-            using Stream streams = new FileStream(path, FileMode.Create,FileAccess.Write);
+            using Stream streams = new FileStream(path, FileMode.Create, FileAccess.Write);
             Serialize(streams);
         }
         public void Serialize(Stream to)
@@ -61,6 +60,6 @@ namespace NppGZipFileViewer
             return pref;
         }
 
-        
+
     }
 }
