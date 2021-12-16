@@ -24,7 +24,7 @@ namespace NppGZipFileViewer
         {
             excludedFiles.Remove(id);
             zippedFiles.Add(id);
-            if (filePathes.ContainsKey(id))
+            if (!filePathes.ContainsKey(id))
                 filePathes.Add(id, path);
             else filePathes[id] = path;
         }
@@ -33,7 +33,7 @@ namespace NppGZipFileViewer
             zippedFiles.Remove(id);
 
             excludedFiles.Add(id);
-            if (filePathes.ContainsKey(id))
+            if (!filePathes.ContainsKey(id))
                 filePathes.Add(id, path);
             else filePathes[id] = path;
         }
