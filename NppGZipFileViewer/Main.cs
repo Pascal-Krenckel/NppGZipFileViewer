@@ -184,7 +184,7 @@ namespace Kbg.NppPluginNET
             PluginBase.SetCommand(1, "---", null);
             PluginBase.SetCommand(2, "Settings", OpenSettings);
             PluginBase.SetCommand(3, "About", OpenAbout);
-            PluginBase.SetCommand(3, "Credits", OpenCredits);
+            PluginBase.SetCommand(4, "Credits", OpenCredits);
             SetToolBarIcon();
         }
 
