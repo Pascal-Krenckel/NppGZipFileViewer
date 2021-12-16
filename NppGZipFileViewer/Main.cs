@@ -139,7 +139,11 @@ namespace Kbg.NppPluginNET
 
 
             using var gzContentStream = NppGZipFileViewerHelper.GetContentStream(notification, path);
-
+            
+            if (gzContentStream.Length == 0)
+                if (Preferences.HasGZipSuffix(path))
+                    fileTracker.Include(notification.Header.IdFrom, path);
+                else return;
             try
             {
                 using var decodedContentStream = NppGZipFileViewerHelper.Decode(gzContentStream);
