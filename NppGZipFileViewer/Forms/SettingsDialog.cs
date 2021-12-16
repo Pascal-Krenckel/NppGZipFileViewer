@@ -37,5 +37,10 @@ namespace NppGZipFileViewer.Forms
                 lst_Suffixes.Items.AddRange(value.Extensions.ToArray());
             }
         }
+
+        ~SettingsDialog()
+        {
+            Icon.Dispose();
+        }
     }
 }
