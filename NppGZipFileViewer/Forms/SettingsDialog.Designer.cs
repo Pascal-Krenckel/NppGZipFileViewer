@@ -29,6 +29,7 @@ namespace NppGZipFileViewer.Forms
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsDialog));
             this.lst_Suffixes = new System.Windows.Forms.ListBox();
             this.chk_DecompressAll = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -49,13 +50,13 @@ namespace NppGZipFileViewer.Forms
             this.lst_Suffixes.Size = new System.Drawing.Size(348, 304);
             this.lst_Suffixes.TabIndex = 0;
             // 
-            // checkBox1
+            // chk_DecompressAll
             // 
             this.chk_DecompressAll.AutoSize = true;
             this.chk_DecompressAll.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chk_DecompressAll.Location = new System.Drawing.Point(32, 14);
             this.chk_DecompressAll.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.chk_DecompressAll.Name = "checkBox1";
+            this.chk_DecompressAll.Name = "chk_DecompressAll";
             this.chk_DecompressAll.Size = new System.Drawing.Size(209, 24);
             this.chk_DecompressAll.TabIndex = 1;
             this.chk_DecompressAll.Text = "Try to decompress all files";
@@ -133,6 +134,7 @@ namespace NppGZipFileViewer.Forms
             this.Controls.Add(this.lst_Suffixes);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
