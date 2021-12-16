@@ -33,6 +33,22 @@ namespace NppGZipFileViewer
             return memoryStream;
         }
 
+        internal static MemoryStream GetCurrentContentStream()
+        {       
+
+            int data_length = (int)Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_GETLENGTH, 0, 0);
+            if (data_length <= 0)
+                return new MemoryStream();
+
+            var pData = Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_GETCHARACTERPOINTER, 0, 0);
+            if (pData == IntPtr.Zero)
+                return new MemoryStream();
+            MemoryStream memoryStream = new MemoryStream();
+            memoryStream.SetLength(data_length);
+            Marshal.Copy(pData, memoryStream.GetBuffer(), 0, data_length);
+            return memoryStream;
+        }
+
         internal static MemoryStream Decode(Stream gzStream)
         {
             using GZipStream decoder = new GZipStream(gzStream, CompressionMode.Decompress, true);
