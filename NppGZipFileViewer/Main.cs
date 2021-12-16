@@ -31,13 +31,13 @@ namespace Kbg.NppPluginNET
             switch (notification.Header.Code)
             {
                 case (uint)NppMsg.NPPN_FILEOPENED:
-                    if (Preferences.DecompressAll || Preferences.HasGZipSuffix(NppGZipFileViewerHelper.GetFilePath(notification)))
+                    if (Preferences.DecompressAll || Preferences.HasGZipSuffix(nppGateway.GetFullPathFromBufferId(notification.Header.IdFrom)))
                         TryDecompress(notification);
                     break;
                 case (uint)NppMsg.NPPN_FILEBEFORESAVE:
                     try
                     {
-                        var path = NppGZipFileViewerHelper.GetFilePath(notification);
+                        var path = nppGateway.GetFullPathFromBufferId(notification.Header.IdFrom);
 
                         if (fileTracker.IsExcluded(notification.Header.IdFrom))
                             return;
@@ -57,7 +57,7 @@ namespace Kbg.NppPluginNET
                     break;
                 case (uint)NppMsg.NPPN_FILESAVED:
                     {
-                        var path = NppGZipFileViewerHelper.GetFilePath(notification);
+                        var path = nppGateway.GetFullPathFromBufferId(notification.Header.IdFrom);
                         bool toCompress = ShouldBeCompressed(notification);
                         bool wasCompressed = cursorPosition.ContainsKey(notification.Header.IdFrom);
 
@@ -66,10 +66,14 @@ namespace Kbg.NppPluginNET
                             // save again, but update file tracker based on toCompressed
                             if (toCompress)
                                 fileTracker.Include(notification.Header.IdFrom, path);
-                            else fileTracker.Exclude(notification.Header.IdFrom, path);
-
-                            if (wasCompressed)
-                                scintillaGateway.Undo(); //undo store
+                            else
+                            {
+                                fileTracker.Exclude(notification.Header.IdFrom, path);
+                                scintillaGateway.Undo(); //undo compression
+                                scintillaGateway.GotoPos(cursorPosition[notification.Header.IdFrom]);
+                                scintillaGateway.EmptyUndoBuffer();
+                                cursorPosition.Remove(notification.Header.IdFrom);
+                            }
                             nppGateway.SwitchToFile(path);
                             nppGateway.MakeCurrentBufferDirty();
                             nppGateway.SaveCurrentFile();
@@ -117,7 +121,7 @@ namespace Kbg.NppPluginNET
 
         private static bool ShouldBeCompressed(ScNotification notification)
         {
-            var newPath = NppGZipFileViewerHelper.GetFilePath(notification).ToString();
+            var newPath = nppGateway.GetFullPathFromBufferId(notification.Header.IdFrom).ToString();
 
             // no path change -> file tracked
             var oldPath = fileTracker.GetStoredPath(notification.Header.IdFrom);
@@ -163,7 +167,7 @@ namespace Kbg.NppPluginNET
 
         private static void TryDecompress(ScNotification notification)
         {
-            var path = NppGZipFileViewerHelper.GetFilePath(notification);
+            var path = nppGateway.GetFullPathFromBufferId(notification.Header.IdFrom);
 
 
             using var gzContentStream = NppGZipFileViewerHelper.GetContentStream(notification, path);
