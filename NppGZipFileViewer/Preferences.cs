@@ -28,7 +28,7 @@ namespace NppGZipFileViewer
 
         public bool HasGZipSuffix(string path)
         {
-            return Extensions.Any(suffix => path.EndsWith(suffix));
+            return Extensions.Any(suffix => path?.EndsWith(suffix) ?? false);
         }
         public bool HasGZipSuffix(StringBuilder path)
         {
