@@ -22,9 +22,6 @@ namespace NppGZipFileViewer
                 zippedFilePathes.Add(id, path);
             else zippedFilePathes[id] = path;
         }
-
-        public void Remove(IntPtr id) { zippedFiles.Remove(id); zippedFilePathes.Remove(id); }
-
         public void Exclude(IntPtr id)
         {
             if(zippedFiles.Remove(id)) zippedFilePathes.Remove(id);
@@ -32,7 +29,14 @@ namespace NppGZipFileViewer
             excludedFiles.Add(id);
         }
 
-        public bool Contains(IntPtr id) { return zippedFiles.Contains(id); }
+
+        public void Remove(IntPtr id)
+        {
+            if (zippedFiles.Remove(id)) zippedFilePathes.Remove(id);
+            excludedFiles.Remove(id);
+        }
+
+        public bool IsIncluded(IntPtr id) { return zippedFiles.Contains(id); }
 
         public bool IsExcluded(IntPtr id) { return excludedFiles.Contains(id); }
 
