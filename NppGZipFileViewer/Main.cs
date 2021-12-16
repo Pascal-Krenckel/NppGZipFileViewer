@@ -39,7 +39,7 @@ namespace Kbg.NppPluginNET
                     {
                         var path = NppGZipFileViewerHelper.GetFilePath(notification);
 
-                        if (!Preferences.HasGZipSuffix(path) && !fileTracker.Contains(notification.Header.IdFrom))
+                        if (!Preferences.HasGZipSuffix(path) && !fileTracker.IsIncluded(notification.Header.IdFrom))
                             return;
 
                         using var contentStream = NppGZipFileViewerHelper.GetContentStream(notification, path);
@@ -63,7 +63,10 @@ namespace Kbg.NppPluginNET
                             // save again, but update file tracker based on toCompressed
                             if (toCompress)
                                 fileTracker.Include(notification.Header.IdFrom, path);
-                            else fileTracker.Remove(notification.Header.IdFrom);
+                            else fileTracker.Exclude(notification.Header.IdFrom);
+
+                            if (wasCompressed)
+                                scintillaGateway.Undo(); //undo store
                             nppGateway.SwitchToFile(path);
                             nppGateway.MakeCurrentBufferDirty();
                             nppGateway.SaveCurrentFile();
@@ -99,38 +102,60 @@ namespace Kbg.NppPluginNET
         {
             string str;
             var enc = Encoding.GetEncoding(scintillaGateway.GetCodePage());
-            if (fileTracker.Contains(from))
+            if (fileTracker.IsIncluded(from))
                 str = $"gzip/{enc.WebName}";
             else str = $"{enc.WebName}";
             nppGateway.SetStatusBar(NppMsg.STATUSBAR_UNICODE_TYPE, str);
         }
         private static void UpdateCommandChecked(IntPtr from)
         {
-            nppGateway.SetMenuItemCheck(0, fileTracker.Contains(from));
+            nppGateway.SetMenuItemCheck(0, fileTracker.IsIncluded(from));
         }
 
         private static bool ShouldBeCompressed(ScNotification notification)
         {
             var newPath = NppGZipFileViewerHelper.GetFilePath(notification).ToString();
 
-            // if file with GZip suffix
-            if (Preferences.HasGZipSuffix(newPath)) return true;
-
-            // no path change -> file tracked
+          // no path change -> file tracked
             var oldPath = fileTracker.GetStoredPath(notification.Header.IdFrom);
             if (newPath == oldPath)
-                return fileTracker.Contains(notification.Header.IdFrom);
+            {
+                if (fileTracker.IsIncluded(notification.Header.IdFrom)) // is tracked, so compress
+                    return true;
+                if (fileTracker.IsExcluded(notification.Header.IdFrom)) // is excluded, so don't compress
+                    return false;
+                return Preferences.HasGZipSuffix(newPath); // no manually set information, store iff gz-suffix (should be tracked then, but who knows) 
+            }
 
-            // path changed (not GZip suffix,already handled), but not tracked -> false
-            if (!fileTracker.Contains(notification.Header.IdFrom))
+            // path changed
+
+            // from gz to non gz -> don't compress (even if tracked, because it might be from the old gz file)
+            if (Preferences.HasGZipSuffix(oldPath) && !Preferences.HasGZipSuffix(newPath))
+                return false;
+
+            // from non gz to gz -> compress, even if excluded since it might be from the old non gz file
+            if (!Preferences.HasGZipSuffix(oldPath) && Preferences.HasGZipSuffix(newPath))
+                return true;
+
+            // from gz to gz or non gz to non gz, use tracker
+
+            if (!fileTracker.IsIncluded(notification.Header.IdFrom))
                 return false;
 
             // path changed, from gz (tracked), to not -> do not compress
             if (Preferences.HasGZipSuffix(oldPath))
                 return false;
 
-            // path changed && tracked -> true, create a copy if compression is not wanted
-            return true;
+            // from gz to gz or non gz to non gz, use tracker
+
+            if (fileTracker.IsIncluded(notification.Header.IdFrom))
+                return true;
+
+            if (fileTracker.IsExcluded(notification.Header.IdFrom))
+                return false;
+
+            // not tracked -> go by suffix
+            return Preferences.HasGZipSuffix(newPath);
         }
 
         private static void TryDecompress(ScNotification notification)
@@ -199,7 +224,7 @@ namespace Kbg.NppPluginNET
                 using var contentStream = NppGZipFileViewerHelper.GetCurrentContentStream();
                 using var decodedStream = NppGZipFileViewerHelper.Decode(contentStream);
                 NppGZipFileViewerHelper.SetText(decodedStream);
-                if (fileTracker.Contains(bufferId))
+                if (fileTracker.IsIncluded(bufferId))
                     ToogleCompress();
                 fileTracker.Exclude(bufferId); // make sure it's excluded
             }
@@ -215,7 +240,7 @@ namespace Kbg.NppPluginNET
             using var contentStream = NppGZipFileViewerHelper.GetCurrentContentStream();
             using var encodedStream = NppGZipFileViewerHelper.Encode(contentStream);
             NppGZipFileViewerHelper.SetText(encodedStream);
-            if (fileTracker.Contains(bufferId))
+            if (fileTracker.IsIncluded(bufferId))
                 ToogleCompress();
             fileTracker.Exclude(bufferId); // make sure it's excluded
         }
@@ -264,12 +289,9 @@ namespace Kbg.NppPluginNET
         internal static void ToogleCompress()
         {
             IntPtr bufferId = nppGateway.GetCurrentBufferId();
-            if (fileTracker.Contains(bufferId))
-                if (Preferences.HasGZipSuffix(nppGateway.GetFullPathFromBufferId(bufferId)))
-                    MessageBox.Show("This files suffix is a gzip suffix. This file will always be compressed.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                else
+            if (fileTracker.IsIncluded(bufferId))                
                 {
-                    fileTracker.Remove(bufferId);
+                    fileTracker.Exclude(bufferId);
                     nppGateway.MakeCurrentBufferDirty();
                 }
             else
