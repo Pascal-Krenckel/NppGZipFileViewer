@@ -106,7 +106,7 @@ namespace Kbg.NppPluginNET
         }
         private static void UpdateCommandChecked(IntPtr from)
         {
-            nppGateway.SetMenuItemCheck("Compress", fileTracker.Contains(from));
+            nppGateway.SetMenuItemCheck(0, fileTracker.Contains(from));
         }
 
         private static bool ShouldBeCompressed(ScNotification notification)
@@ -180,12 +180,44 @@ namespace Kbg.NppPluginNET
                 Preferences = new Preferences(false, ".gz");
             }
 
-            PluginBase.SetCommand(0, "Compress", ToogleCompress, false);
+            PluginBase.SetCommand(0, "Toogle Compression", ToogleCompress, false);
             PluginBase.SetCommand(1, "---", null);
-            PluginBase.SetCommand(2, "Settings", OpenSettings);
-            PluginBase.SetCommand(3, "About", OpenAbout);
-            PluginBase.SetCommand(4, "Credits", OpenCredits);
+            PluginBase.SetCommand(2, "Make Compressed", Compress, false);
+            PluginBase.SetCommand(3, "Make Decompressed", Decompress, false);
+            PluginBase.SetCommand(4, "---", null);
+            PluginBase.SetCommand(5, "Settings", OpenSettings);
+            PluginBase.SetCommand(6, "About", OpenAbout);
+            PluginBase.SetCommand(7, "Credits", OpenCredits);
             SetToolBarIcon();
+        }
+
+        private static void Decompress()
+        {
+            try
+            {
+                IntPtr bufferId = nppGateway.GetCurrentBufferId();
+                using var contentStream = NppGZipFileViewerHelper.GetCurrentContentStream();
+                using var decodedStream = NppGZipFileViewerHelper.Decode(contentStream);
+                NppGZipFileViewerHelper.SetText(decodedStream);
+                if (fileTracker.Contains(bufferId))
+                    ToogleCompress();
+                fileTracker.Exclude(bufferId); // make sure it's excluded
+            }
+            catch(InvalidDataException ex)
+            {
+                MessageBox.Show($"Couldn't decompress file.\n{ex.Message}","Error",MessageBoxButtons.OK,MessageBoxIcon.Error);
+            }
+        }
+
+        private static void Compress()
+        {
+            IntPtr bufferId = nppGateway.GetCurrentBufferId();
+            using var contentStream = NppGZipFileViewerHelper.GetCurrentContentStream();
+            using var encodedStream = NppGZipFileViewerHelper.Encode(contentStream);
+            NppGZipFileViewerHelper.SetText(encodedStream);
+            if (fileTracker.Contains(bufferId))
+                ToogleCompress();
+            fileTracker.Exclude(bufferId); // make sure it's excluded
         }
 
         private static void OpenCredits()
