@@ -39,6 +39,9 @@ namespace Kbg.NppPluginNET
                     {
                         var path = NppGZipFileViewerHelper.GetFilePath(notification);
 
+                        if (fileTracker.IsExcluded(notification.Header.IdFrom))
+                            return;
+
                         if (!Preferences.HasGZipSuffix(path) && !fileTracker.IsIncluded(notification.Header.IdFrom))
                             return;
 
@@ -63,7 +66,7 @@ namespace Kbg.NppPluginNET
                             // save again, but update file tracker based on toCompressed
                             if (toCompress)
                                 fileTracker.Include(notification.Header.IdFrom, path);
-                            else fileTracker.Exclude(notification.Header.IdFrom);
+                            else fileTracker.Exclude(notification.Header.IdFrom, path);
 
                             if (wasCompressed)
                                 scintillaGateway.Undo(); //undo store
@@ -116,7 +119,7 @@ namespace Kbg.NppPluginNET
         {
             var newPath = NppGZipFileViewerHelper.GetFilePath(notification).ToString();
 
-          // no path change -> file tracked
+            // no path change -> file tracked
             var oldPath = fileTracker.GetStoredPath(notification.Header.IdFrom);
             if (newPath == oldPath)
             {
@@ -164,7 +167,7 @@ namespace Kbg.NppPluginNET
 
 
             using var gzContentStream = NppGZipFileViewerHelper.GetContentStream(notification, path);
-            
+
             if (gzContentStream.Length == 0)
                 if (Preferences.HasGZipSuffix(path))
                     fileTracker.Include(notification.Header.IdFrom, path);
@@ -221,28 +224,30 @@ namespace Kbg.NppPluginNET
             try
             {
                 IntPtr bufferId = nppGateway.GetCurrentBufferId();
+                var path = nppGateway.GetCurrentFilePath();
                 using var contentStream = NppGZipFileViewerHelper.GetCurrentContentStream();
                 using var decodedStream = NppGZipFileViewerHelper.Decode(contentStream);
                 NppGZipFileViewerHelper.SetText(decodedStream);
                 if (fileTracker.IsIncluded(bufferId))
                     ToogleCompress();
-                fileTracker.Exclude(bufferId); // make sure it's excluded
+                fileTracker.Exclude(bufferId, path); // make sure it's excluded
             }
-            catch(InvalidDataException ex)
+            catch (InvalidDataException ex)
             {
-                MessageBox.Show($"Couldn't decompress file.\n{ex.Message}","Error",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                MessageBox.Show($"Couldn't decompress file.\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private static void Compress()
         {
             IntPtr bufferId = nppGateway.GetCurrentBufferId();
+            var path = nppGateway.GetCurrentFilePath();
             using var contentStream = NppGZipFileViewerHelper.GetCurrentContentStream();
             using var encodedStream = NppGZipFileViewerHelper.Encode(contentStream);
             NppGZipFileViewerHelper.SetText(encodedStream);
             if (fileTracker.IsIncluded(bufferId))
                 ToogleCompress();
-            fileTracker.Exclude(bufferId); // make sure it's excluded
+            fileTracker.Exclude(bufferId, path); // make sure it's excluded
         }
 
         private static void OpenCredits()
@@ -289,11 +294,11 @@ namespace Kbg.NppPluginNET
         internal static void ToogleCompress()
         {
             IntPtr bufferId = nppGateway.GetCurrentBufferId();
-            if (fileTracker.IsIncluded(bufferId))                
-                {
-                    fileTracker.Exclude(bufferId);
-                    nppGateway.MakeCurrentBufferDirty();
-                }
+            if (fileTracker.IsIncluded(bufferId))
+            {
+                fileTracker.Exclude(bufferId, nppGateway.GetFullPathFromBufferId(bufferId));
+                nppGateway.MakeCurrentBufferDirty();
+            }
             else
             {
                 fileTracker.Include(bufferId, nppGateway.GetFullPathFromBufferId(bufferId));
