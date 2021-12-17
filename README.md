@@ -6,8 +6,8 @@ It's written in C# with Visual Studio.
 
 ### Dll-Files
 It depends on your npp version:
-1. for x64 use <Name>X64.dll
-2. for x86 use <Name>X86.dll or <Name>.dll
+1. for x64 use ...X64.dll
+2. for x86 use ...X86.dll or ....dll
 
 ### Terminus:
 1. tracked file: A tracked file is a file that was decompressed or is selected manually for compression. The Icon and Menu Entry will be checked for this file.
