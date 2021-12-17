@@ -41,7 +41,7 @@ Save (same path):
 3. Any ignored file will be compressed if the suffix matches a gz-suffix. (Won't happen since this files would be tracked)
 
 Save (diffrent path):
-Npp will tell you the old path when notifing about FileBeforeSaved, so it might be saved two time.
+Npp will tell the plugin the old path when notifing "FileBeforeSaved". If based on the suffix the compression toogles it might be saved two times.
 1. from gz to non-gz: This file won't be compressed. If you want it to be compressed: after the save, toogle the compression and save the file again.
 2. from non-gz to gz: This file will always be compressed. If you don't want to compress it: after the save, toogle the compression and save the file again.
 3. same suffix type:<br/>
