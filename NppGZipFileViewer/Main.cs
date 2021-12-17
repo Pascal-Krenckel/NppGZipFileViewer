@@ -144,14 +144,8 @@ namespace Kbg.NppPluginNET
             if (!Preferences.HasGZipSuffix(oldPath) && Preferences.HasGZipSuffix(newPath))
                 return true;
 
-            // from gz to gz or non gz to non gz, use tracker
 
-            if (!fileTracker.IsIncluded(notification.Header.IdFrom))
-                return false;
-
-            // path changed, from gz (tracked), to not -> do not compress
-            if (Preferences.HasGZipSuffix(oldPath))
-                return false;
+            // same suffix type:
 
             // from gz to gz or non gz to non gz, use tracker
 
@@ -161,7 +155,7 @@ namespace Kbg.NppPluginNET
             if (fileTracker.IsExcluded(notification.Header.IdFrom))
                 return false;
 
-            // not tracked -> go by suffix
+            // not tracked -> go by suffix, should always return false, since gz-files should always be tracked
             return Preferences.HasGZipSuffix(newPath);
         }
 
