@@ -26,9 +26,9 @@ In the menubar there are 6 Commands:
 1. Toogle Compression: If clicked it will mark a compressed (tracked) file as uncompressed (excluded) and a uncompressed file as compressed (tracked). Makes the buffer dirty. It's the same command as the icon in the tool bar. It is marked if the current file is selected as compressed. If you store the file it will automatically store the file compressed.
 2. Make Compressed: Compresses the current file text in the editor. This will always exclude the file from automatically compress on save. You can toogle it on by using command 1.
 3. Make Uncompressed: Uncompresses the current file in the editor. This will alays exclude the file from automatically compress on save. You can toogle it on by using command 1.
-4. Settings: Open the settings dialog.
-5. Abaout: Open the about dialog.
-6. Credits: Open the credits dialog.
+4. Settings: Opens the settings dialog.
+5. About: Opens the about dialog.
+6. Credits: Opens the credits dialog.
 
 ### (De)Compression-File-Rules
 On Open:
@@ -45,9 +45,9 @@ Npp will tell the plugin the old path when notifing "FileBeforeSaved". If based 
 1. from gz to non-gz: This file won't be compressed. If you want it to be compressed: after the save, toogle the compression and save the file again.
 2. from non-gz to gz: This file will always be compressed. If you don't want to compress it: after the save, toogle the compression and save the file again.
 3. same suffix type:<br/>
-   If tracked, save compressed.
-   If excluded, save uncompressed.
-   If ingored go by suffix type.
+   1. If tracked, save compressed.
+   2. If excluded, save uncompressed.
+   3. If ingored go by suffix type.
    
 Copy:
 1. Will always be stored as seen in the editor since npp won't raise a FileBeforeSave/FileSaved event.
