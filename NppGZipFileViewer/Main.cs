@@ -29,7 +29,7 @@ namespace Kbg.NppPluginNET
         public static void OnNotification(ScNotification notification)
         {
             switch (notification.Header.Code)
-            {
+            { 
                 case (uint)NppMsg.NPPN_FILEOPENED:
                     if (Preferences.DecompressAll || Preferences.HasGZipSuffix(nppGateway.GetFullPathFromBufferId(notification.Header.IdFrom)))
                         TryDecompress(notification);
@@ -174,9 +174,17 @@ namespace Kbg.NppPluginNET
             {
                 using var decodedContentStream = NppGZipFileViewerHelper.Decode(gzContentStream);
                 NppGZipFileViewerHelper.SetText(decodedContentStream);
+
+                var encoding = nppGateway.GetBufferEncoding(notification.Header.IdFrom);
+
+
+                if (encoding == 0 && Preferences.OpenAsUTF8)
+                    Win32.SendMessage(PluginBase.nppData._nppHandle, NppMsg.NPPM_MENUCOMMAND, 0, (int)NppMenuCmd.IDM_FORMAT_AS_UTF_8);
+                
                 Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_GOTOPOS, 0, 0);
                 Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_EMPTYUNDOBUFFER, 0, 0);
                 Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_SETSAVEPOINT, 0, 0);
+              
                 fileTracker.Include(notification.Header.IdFrom, path);
             }
             catch (InvalidDataException ex)
@@ -184,6 +192,8 @@ namespace Kbg.NppPluginNET
                 if (Preferences.HasGZipSuffix(path))
                     fileTracker.Include(notification.Header.IdFrom, path);
             }
+            var endoging = nppGateway.GetBufferEncoding(notification.Header.IdFrom);            
+            var ret = Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_GETCODEPAGE, 0, 0).ToInt64();
 
         }
         internal static void CommandMenuInit()
@@ -203,7 +213,7 @@ namespace Kbg.NppPluginNET
             }
             catch (Exception ex)
             {
-                Preferences = new Preferences(false, ".gz");
+                Preferences = new Preferences(false, false,".gz");
             }
 
             PluginBase.SetCommand(0, "Toogle Compression", ToogleCompress, false);

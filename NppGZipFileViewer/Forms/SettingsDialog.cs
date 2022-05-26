@@ -29,11 +29,12 @@ namespace NppGZipFileViewer.Forms
         {
             get
             {
-                return new Preferences(chk_DecompressAll.Checked, lst_Suffixes.Items.Cast<string>());
+                return new Preferences(chk_DecompressAll.Checked, chk_OpenAsUTF8.Checked,lst_Suffixes.Items.Cast<string>());
             }
             set
             {
                 chk_DecompressAll.Checked = value.DecompressAll;
+                chk_OpenAsUTF8.Checked = value.OpenAsUTF8;
                 lst_Suffixes.Items.AddRange(value.Extensions.ToArray());
             }
         }

@@ -11,16 +11,19 @@ namespace NppGZipFileViewer
     public class Preferences
     {
         public bool DecompressAll { get; set; }
+
+        public bool OpenAsUTF8 { get; set; }
         public List<string> Extensions { get; set; }
 
 
-        public Preferences() : this(false) { }
-        public Preferences(bool decompressAll, IEnumerable<string> exts)
+        public Preferences() : this(false,false) { }
+        public Preferences(bool decompressAll,bool openAsUTF8 ,IEnumerable<string> exts)
         {
             Extensions = exts.ToList();
             DecompressAll = decompressAll;
+            OpenAsUTF8 = openAsUTF8;
         }
-        public Preferences(bool decompressAll, params string[] exts) : this(decompressAll, (IEnumerable<string>)exts)
+        public Preferences(bool decompressAll,bool openAsUTF8, params string[] exts) : this(decompressAll,openAsUTF8, (IEnumerable<string>)exts)
         {
         }
 
