@@ -1,4 +1,5 @@
 ﻿// NPP plugin platform for .Net v0.94.00 by Kasper B. Graversen etc.
+using NppGZipFileViewer;
 using NppPluginNET.PluginInfrastructure;
 using System;
 using System.Linq;
@@ -64,12 +65,30 @@ namespace Kbg.NppPluginNET.PluginInfrastructure
         public Int64 GetBufferEncoding(IntPtr bufferId)
         {
             return (Win32.SendMessage(NppHandle, NppMsg.NPPM_GETBUFFERENCODING, bufferId, 0).ToInt64());
-        }
+        }       
 
         public void SetMenuItemCheck(int cmdIndex, bool @checked)
         {
             Win32.SendMessage(NppHandle, NppMsg.NPPM_SETMENUITEMCHECK, PluginBase._funcItems.Items[cmdIndex]._cmdID, @checked ? 1 : 0);
         }
+
+        public void SendMenuEncoding(NppEncoding enc)
+        {
+            switch(enc)
+            {
+                case NppEncoding.ANSI:
+                    Win32.SendMessage(PluginBase.nppData._nppHandle, NppMsg.NPPM_MENUCOMMAND, 0, (int)NppMenuCmd.IDM_FORMAT_ANSI); break;
+                case NppEncoding.UTF8_BOM:
+                    Win32.SendMessage(PluginBase.nppData._nppHandle, NppMsg.NPPM_MENUCOMMAND, 0, (int)NppMenuCmd.IDM_FORMAT_UTF_8); break;
+                case NppEncoding.UTF16_LE:
+                    Win32.SendMessage(PluginBase.nppData._nppHandle, NppMsg.NPPM_MENUCOMMAND, 0, (int)NppMenuCmd.IDM_FORMAT_UCS_2LE); break;
+                case NppEncoding.UTF16_BE:
+                    Win32.SendMessage(PluginBase.nppData._nppHandle, NppMsg.NPPM_MENUCOMMAND, 0, (int)NppMenuCmd.IDM_FORMAT_UCS_2BE); break;
+                case NppEncoding.UTF8:
+                    Win32.SendMessage(PluginBase.nppData._nppHandle, NppMsg.NPPM_MENUCOMMAND, 0, (int)NppMenuCmd.IDM_FORMAT_AS_UTF_8); break;
+            }
+        }
+
         public void SetMenuItemCheck(string commandName, bool @checked)
         {
             Win32.SendMessage(NppHandle, NppMsg.NPPM_SETMENUITEMCHECK, PluginBase._funcItems.Items.First(cmd => cmd._itemName == commandName)._cmdID, @checked ? 1 : 0);
