@@ -29,7 +29,7 @@ namespace Kbg.NppPluginNET
         public static void OnNotification(ScNotification notification)
         {
             switch (notification.Header.Code)
-            { 
+            {
                 case (uint)NppMsg.NPPN_FILEOPENED:
                     if (Preferences.DecompressAll || Preferences.HasGZipSuffix(nppGateway.GetFullPathFromBufferId(notification.Header.IdFrom)))
                         TryDecompress(notification);
@@ -45,27 +45,36 @@ namespace Kbg.NppPluginNET
                         if (!Preferences.HasGZipSuffix(path) && !fileTracker.IsIncluded(notification.Header.IdFrom))
                             return;
 
-                        using var contentStream = NppGZipFileViewerHelper.GetContentStream(notification, path);
-                        using var encodedContentStream = NppGZipFileViewerHelper.Encode(contentStream);
+                        var nppEnc = (NppEncoding)nppGateway.GetBufferEncoding(notification.Header.IdFrom);
+                        var internalEnc = nppEnc == NppEncoding.ANSI || NppEncoding.UTF8 == nppEnc || nppEnc == NppEncoding.UTF8_BOM;
 
-                        cursorPosition.Add(notification.Header.IdFrom, scintillaGateway.GetCurrentPos());
                         scintillaGateway.BeginUndoAction();
-                        NppGZipFileViewerHelper.SetText(encodedContentStream);
+                        cursorPosition.Add(notification.Header.IdFrom, scintillaGateway.GetCurrentPos());
+                        using var contentStream = NppGZipFileViewerHelper.GetContentStream(notification, path);
+                        using var encodedContentStream = NppGZipFileViewerHelper.Encode(contentStream, fileTracker.GetEncoding(notification.Header.IdFrom));
+                        NppGZipFileViewerHelper.SetEncodedText(encodedContentStream);
                         scintillaGateway.EndUndoAction();
                     }
                     catch (Exception ex) { }
                     break;
                 case (uint)NppMsg.NPPN_FILESAVED:
                     {
+                        var nppEnc = (NppEncoding)nppGateway.GetBufferEncoding(notification.Header.IdFrom);
+                        var internalEnc = nppEnc == NppEncoding.ANSI || NppEncoding.UTF8 == nppEnc || nppEnc == NppEncoding.UTF8_BOM;
+                        
+
                         var path = nppGateway.GetFullPathFromBufferId(notification.Header.IdFrom);
                         bool toCompress = ShouldBeCompressed(notification);
-                        bool wasCompressed = cursorPosition.ContainsKey(notification.Header.IdFrom);
+                        bool wasCompressed = cursorPosition.ContainsKey(notification.Header.IdFrom);                       
 
                         if (wasCompressed != toCompress)
                         {
                             // save again, but update file tracker based on toCompressed
                             if (toCompress)
-                                fileTracker.Include(notification.Header.IdFrom, path);
+                            {
+                                Encoding encoding = NppGZipFileViewerHelper.ResetEncoding();
+                                fileTracker.Include(notification.Header.IdFrom, path,encoding);
+                            }
                             else
                             {
                                 fileTracker.Exclude(notification.Header.IdFrom, path);
@@ -84,6 +93,7 @@ namespace Kbg.NppPluginNET
                         {
                             scintillaGateway.Undo();
                             scintillaGateway.GotoPos(cursorPosition[notification.Header.IdFrom]);
+
                             scintillaGateway.EmptyUndoBuffer();
                             scintillaGateway.SetSavePoint();
                         }
@@ -106,13 +116,16 @@ namespace Kbg.NppPluginNET
         }
 
         private static void UpdateStatusbar(IntPtr from)
-        {
-            string str;
-            var enc = Encoding.GetEncoding(scintillaGateway.GetCodePage());
+        {            
             if (fileTracker.IsIncluded(from))
-                str = $"gzip/{enc.WebName}";
-            else str = $"{enc.WebName}";
-            nppGateway.SetStatusBar(NppMsg.STATUSBAR_UNICODE_TYPE, str);
+            {
+                
+                var enc = fileTracker.GetEncoding(from);
+
+                string str = $"gzip/{enc.WebName.ToUpper()}({enc.CodePage})";
+
+                nppGateway.SetStatusBar(NppMsg.STATUSBAR_UNICODE_TYPE, str);
+            }          
         }
         private static void UpdateCommandChecked(IntPtr from)
         {
@@ -163,38 +176,29 @@ namespace Kbg.NppPluginNET
         {
             var path = nppGateway.GetFullPathFromBufferId(notification.Header.IdFrom);
 
-
             using var gzContentStream = NppGZipFileViewerHelper.GetContentStream(notification, path);
 
             if (gzContentStream.Length == 0)
                 if (Preferences.HasGZipSuffix(path))
-                    fileTracker.Include(notification.Header.IdFrom, path);
+                    fileTracker.Include(notification.Header.IdFrom, path, new UTF8Encoding(false));
                 else return;
             try
             {
-                using var decodedContentStream = NppGZipFileViewerHelper.Decode(gzContentStream);
-                NppGZipFileViewerHelper.SetText(decodedContentStream);
+                using var decodedContentStream = NppGZipFileViewerHelper.Decode(gzContentStream);                
+                Encoding encoding = NppGZipFileViewerHelper.SetDecodedText(decodedContentStream);
 
-                var encoding = nppGateway.GetBufferEncoding(notification.Header.IdFrom);
-
-
-                if (encoding == 0 && Preferences.OpenAsUTF8)
-                    Win32.SendMessage(PluginBase.nppData._nppHandle, NppMsg.NPPM_MENUCOMMAND, 0, (int)NppMenuCmd.IDM_FORMAT_AS_UTF_8);
-                
+                nppGateway.SendMenuEncoding(NppEncoding.UTF8);
                 Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_GOTOPOS, 0, 0);
                 Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_EMPTYUNDOBUFFER, 0, 0);
                 Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_SETSAVEPOINT, 0, 0);
-              
-                fileTracker.Include(notification.Header.IdFrom, path);
+
+                fileTracker.Include(notification.Header.IdFrom, path, encoding);
             }
             catch (InvalidDataException ex)
             {
                 if (Preferences.HasGZipSuffix(path))
-                    fileTracker.Include(notification.Header.IdFrom, path);
+                    fileTracker.Exclude(notification.Header.IdFrom, path);
             }
-            var endoging = nppGateway.GetBufferEncoding(notification.Header.IdFrom);            
-            var ret = Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_GETCODEPAGE, 0, 0).ToInt64();
-
         }
         internal static void CommandMenuInit()
         {
@@ -235,7 +239,7 @@ namespace Kbg.NppPluginNET
                 var path = nppGateway.GetCurrentFilePath();
                 using var contentStream = NppGZipFileViewerHelper.GetCurrentContentStream();
                 using var decodedStream = NppGZipFileViewerHelper.Decode(contentStream);
-                NppGZipFileViewerHelper.SetText(decodedStream);
+                NppGZipFileViewerHelper.SetDecodedText(decodedStream);
                 if (fileTracker.IsIncluded(bufferId))
                     ToogleCompress();
                 fileTracker.Exclude(bufferId, path); // make sure it's excluded
@@ -251,8 +255,9 @@ namespace Kbg.NppPluginNET
             IntPtr bufferId = nppGateway.GetCurrentBufferId();
             var path = nppGateway.GetCurrentFilePath();
             using var contentStream = NppGZipFileViewerHelper.GetCurrentContentStream();
-            using var encodedStream = NppGZipFileViewerHelper.Encode(contentStream);
-            NppGZipFileViewerHelper.SetText(encodedStream);
+            var encoding = NppGZipFileViewerHelper.ToEncoding( (NppEncoding)nppGateway.GetBufferEncoding(bufferId));
+            using var encodedStream = NppGZipFileViewerHelper.Encode(contentStream,encoding );
+            NppGZipFileViewerHelper.SetEncodedText(encodedStream);
             if (fileTracker.IsIncluded(bufferId))
                 ToogleCompress();
             fileTracker.Exclude(bufferId, path); // make sure it's excluded
@@ -304,12 +309,15 @@ namespace Kbg.NppPluginNET
             IntPtr bufferId = nppGateway.GetCurrentBufferId();
             if (fileTracker.IsIncluded(bufferId))
             {
+                var enc = NppGZipFileViewerHelper.ToNppEncoding(fileTracker.GetEncoding(bufferId));
                 fileTracker.Exclude(bufferId, nppGateway.GetFullPathFromBufferId(bufferId));
+                nppGateway.SendMenuEncoding(enc);
                 nppGateway.MakeCurrentBufferDirty();
             }
             else
             {
-                fileTracker.Include(bufferId, nppGateway.GetFullPathFromBufferId(bufferId));
+                var encoding = NppGZipFileViewerHelper.ResetEncoding();
+                fileTracker.Include(bufferId, nppGateway.GetFullPathFromBufferId(bufferId),encoding);
                 nppGateway.MakeCurrentBufferDirty();
             }
 

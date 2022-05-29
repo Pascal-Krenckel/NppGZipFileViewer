@@ -44,7 +44,7 @@ namespace NppGZipFileViewer
         }
 
         internal static MemoryStream GetCurrentContentStream()
-        {       
+        {
 
             int data_length = (int)Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_GETLENGTH, 0, 0);
             if (data_length <= 0)
@@ -67,20 +67,127 @@ namespace NppGZipFileViewer
             return decodedStream;
         }
 
-        internal static void SetText(MemoryStream decodedContentStream)
+        internal static Encoding ToEncoding(NppEncoding nppEncoding)
         {
-            var pinnedArray = GCHandle.Alloc(decodedContentStream.GetBuffer(), GCHandleType.Pinned);
+            switch(nppEncoding)
+            {
+                case NppEncoding.UTF16_LE: return new UnicodeEncoding(false, true);
+                default:
+                case NppEncoding.UTF8: return new UTF8Encoding(false);
+                case NppEncoding.UTF8_BOM: return new UTF8Encoding(true);
+                case NppEncoding.ANSI: return new ASCIIEncoding();
+                case NppEncoding.UTF16_BE: return new UnicodeEncoding(true, true);                 
+            }
+            
+        }
 
-            Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_CLEARALL, 0, 0);
-            Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_APPENDTEXT, (int)decodedContentStream.Length, pinnedArray.AddrOfPinnedObject());
+        internal static Encoding SetDecodedText(MemoryStream decodedContentStream)
+        {
+            NotepadPPGateway nppGateway = new NotepadPPGateway();
+            ScintillaGateway scintillaGateway = new ScintillaGateway(PluginBase.GetCurrentScintilla());
+           
+            //var encoding = nppGateway.GetBufferEncoding(nppGateway.GetCurrentBufferId());
+
+            decodedContentStream.Position = 0;
+            byte[] bom = new byte[Math.Min(4, decodedContentStream.Length)];
+            
+            decodedContentStream.Read(bom, 0, bom.Length);
+            decodedContentStream.Position = 0;
+            Encoding srcEncoding;
+            switch (BOMDetector.GetEncoding(bom))
+            {
+                case BOM.UTF8:
+                    srcEncoding = new UTF8Encoding(true);
+                    break;
+                case BOM.UTF16LE:
+                    srcEncoding = new UnicodeEncoding(false, true);
+                    break;
+                case BOM.UTF16BE:
+                    srcEncoding = new UnicodeEncoding(true, true);
+                    break;
+                case BOM.UTF7:
+                case BOM.UTF32LE:
+                case BOM.UTF32BE:
+                case BOM.None:
+                default:
+                    srcEncoding = new UTF8Encoding();
+                    break;
+            }
+
+            byte[] buffer = Encoding.Convert(srcEncoding, new UTF8Encoding(false), decodedContentStream.GetBuffer(), 0, (int)decodedContentStream.Length);
+            
+            var pinnedArray = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+
+            //Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_CLEARALL, 0, 0);
+            scintillaGateway.SetCodePage(65001);
+            Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_SETTEXT, buffer.Length, pinnedArray.AddrOfPinnedObject());
+            pinnedArray.Free();
+            return srcEncoding;
+        }
+
+        internal static NppEncoding ToNppEncoding(Encoding encoding)
+        {
+            if (encoding == new UTF8Encoding(false))
+                return NppEncoding.UTF8;
+            else if (encoding == new UTF8Encoding(true))
+                return NppEncoding.UTF8_BOM;
+            else if (encoding == new UnicodeEncoding(false, true))
+                return NppEncoding.UTF16_LE;
+            else if (encoding == new UnicodeEncoding(true, true))
+                return NppEncoding.UTF16_BE;
+            else if (encoding == new ASCIIEncoding())
+                return NppEncoding.ANSI;
+            return NppEncoding.UTF8;
+        }
+
+        internal static Encoding ResetEncoding()
+        {
+            NotepadPPGateway gateway = new NotepadPPGateway();
+            ScintillaGateway scintillaGateway = new ScintillaGateway(PluginBase.GetCurrentScintilla());
+            var bufferID = gateway.GetCurrentBufferId();
+            long nppEnc = gateway.GetBufferEncoding(bufferID);
+            Encoding encoding = ToEncoding((NppEncoding)nppEnc);
+            scintillaGateway.SetCodePage(65001);
+            gateway.SendMenuEncoding(NppEncoding.UTF8);
+            return encoding;
+        }
+
+        internal static void SetEncodedText(MemoryStream encodedContentStream)
+        {
+            NotepadPPGateway nppGateway = new NotepadPPGateway();
+            ScintillaGateway scintillaGateway = new ScintillaGateway(PluginBase.GetCurrentScintilla());
+            var pinnedArray = GCHandle.Alloc(encodedContentStream.GetBuffer(), GCHandleType.Pinned);
+
+            //Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_CLEARALL, 0, 0);
+            
+            scintillaGateway.ClearAll();
+            Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_ADDTEXT, (int)encodedContentStream.Length, pinnedArray.AddrOfPinnedObject());            
             pinnedArray.Free();
         }
 
-        internal static MemoryStream Encode(Stream stream)
+        internal static MemoryStream Encode(Stream stream, Encoding dstEncoding)
         {
+            ScintillaGateway scintillaGateway = new ScintillaGateway(PluginBase.GetCurrentScintilla());
             MemoryStream encodedStream = new MemoryStream();
             using GZipStream encoder = new GZipStream(encodedStream, CompressionMode.Compress, true);
-            stream.CopyTo(encoder);
+
+            Encoding srcEncoding = Encoding.GetEncoding(scintillaGateway.GetCodePage());
+           
+
+            if (srcEncoding == dstEncoding)
+                stream.CopyTo(encoder);
+            else
+            {
+                using MemoryStream mem = new MemoryStream();
+                stream.CopyTo(mem);
+                byte[] buffer = Encoding.Convert(srcEncoding, dstEncoding, mem.GetBuffer(), 0, (int)mem.Length);
+                if (dstEncoding != new UTF8Encoding(false))
+                {
+                    var preamble = dstEncoding.GetPreamble();
+                    encoder.Write(preamble, 0, preamble.Length);
+                }
+                encoder.Write(buffer,0, buffer.Length);
+            }
             return encodedStream;
         }
     }
