@@ -121,7 +121,7 @@ namespace Kbg.NppPluginNET
             {                
                 var enc = fileTracker.GetEncoding(from);                
                 string str = $"gzip/{enc.WebName.ToUpper()}";
-                if (enc.CodePage == 65001 && enc.GetPreamble().Length > 0)
+                if (enc.GetPreamble().Length > 0)
                     str += " BOM";
                 nppGateway.SetStatusBar(NppMsg.STATUSBAR_UNICODE_TYPE, str);
             }          
@@ -129,7 +129,7 @@ namespace Kbg.NppPluginNET
             {
                 var enc = NppGZipFileViewerHelper.ToEncoding((NppEncoding)nppGateway.GetBufferEncoding(from));
                 string str = $"{enc.WebName.ToUpper()}";
-                if (enc.CodePage == 65001 && enc.GetPreamble().Length > 0)
+                if (enc.GetPreamble().Length > 0)
                     str += " BOM";
                 nppGateway.SetStatusBar(NppMsg.STATUSBAR_UNICODE_TYPE, str);
             }
