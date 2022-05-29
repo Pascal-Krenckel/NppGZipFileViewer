@@ -227,7 +227,7 @@ namespace Kbg.NppPluginNET
                 Preferences = new Preferences(false, ".gz");
             }
 
-            PluginBase.SetCommand(0, "Toogle Compression", ToogleCompress, false);
+            PluginBase.SetCommand(0, "Toggle Compression", ToogleCompress, false);
             PluginBase.SetCommand(1, "---", null);
             PluginBase.SetCommand(2, "Make Compressed", Compress, false);
             PluginBase.SetCommand(3, "Make Decompressed", Decompress, false);
