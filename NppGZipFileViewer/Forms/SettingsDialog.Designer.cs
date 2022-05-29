@@ -38,14 +38,13 @@ namespace NppGZipFileViewer.Forms
             this.btn_Delete = new System.Windows.Forms.Button();
             this.btn_OK = new System.Windows.Forms.Button();
             this.btn_Cancel = new System.Windows.Forms.Button();
-            this.chk_OpenAsUTF8 = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // lst_Suffixes
             // 
             this.lst_Suffixes.FormattingEnabled = true;
             this.lst_Suffixes.ItemHeight = 20;
-            this.lst_Suffixes.Location = new System.Drawing.Point(32, 107);
+            this.lst_Suffixes.Location = new System.Drawing.Point(32, 75);
             this.lst_Suffixes.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.lst_Suffixes.Name = "lst_Suffixes";
             this.lst_Suffixes.Size = new System.Drawing.Size(348, 304);
@@ -66,7 +65,7 @@ namespace NppGZipFileViewer.Forms
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(28, 82);
+            this.label1.Location = new System.Drawing.Point(28, 50);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(103, 20);
@@ -75,7 +74,7 @@ namespace NppGZipFileViewer.Forms
             // 
             // btn_Add
             // 
-            this.btn_Add.Location = new System.Drawing.Point(167, 419);
+            this.btn_Add.Location = new System.Drawing.Point(167, 387);
             this.btn_Add.Name = "btn_Add";
             this.btn_Add.Size = new System.Drawing.Size(102, 31);
             this.btn_Add.TabIndex = 3;
@@ -85,14 +84,14 @@ namespace NppGZipFileViewer.Forms
             // 
             // txt_Suffix
             // 
-            this.txt_Suffix.Location = new System.Drawing.Point(32, 421);
+            this.txt_Suffix.Location = new System.Drawing.Point(32, 389);
             this.txt_Suffix.Name = "txt_Suffix";
             this.txt_Suffix.Size = new System.Drawing.Size(129, 26);
             this.txt_Suffix.TabIndex = 4;
             // 
             // btn_Delete
             // 
-            this.btn_Delete.Location = new System.Drawing.Point(275, 419);
+            this.btn_Delete.Location = new System.Drawing.Point(275, 387);
             this.btn_Delete.Name = "btn_Delete";
             this.btn_Delete.Size = new System.Drawing.Size(105, 31);
             this.btn_Delete.TabIndex = 5;
@@ -103,7 +102,7 @@ namespace NppGZipFileViewer.Forms
             // btn_OK
             // 
             this.btn_OK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btn_OK.Location = new System.Drawing.Point(32, 473);
+            this.btn_OK.Location = new System.Drawing.Point(32, 441);
             this.btn_OK.Name = "btn_OK";
             this.btn_OK.Size = new System.Drawing.Size(102, 31);
             this.btn_OK.TabIndex = 6;
@@ -113,31 +112,18 @@ namespace NppGZipFileViewer.Forms
             // btn_Cancel
             // 
             this.btn_Cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btn_Cancel.Location = new System.Drawing.Point(278, 473);
+            this.btn_Cancel.Location = new System.Drawing.Point(278, 441);
             this.btn_Cancel.Name = "btn_Cancel";
             this.btn_Cancel.Size = new System.Drawing.Size(102, 31);
             this.btn_Cancel.TabIndex = 7;
             this.btn_Cancel.Text = "Cancel";
             this.btn_Cancel.UseVisualStyleBackColor = true;
             // 
-            // chk_OpenAsUTF8
-            // 
-            this.chk_OpenAsUTF8.AutoSize = true;
-            this.chk_OpenAsUTF8.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chk_OpenAsUTF8.Location = new System.Drawing.Point(32, 48);
-            this.chk_OpenAsUTF8.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.chk_OpenAsUTF8.Name = "chk_OpenAsUTF8";
-            this.chk_OpenAsUTF8.Size = new System.Drawing.Size(179, 24);
-            this.chk_OpenAsUTF8.TabIndex = 8;
-            this.chk_OpenAsUTF8.Text = "Open ANSI as UTF-8";
-            this.chk_OpenAsUTF8.UseVisualStyleBackColor = true;
-            // 
             // SettingsDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(417, 536);
-            this.Controls.Add(this.chk_OpenAsUTF8);
+            this.ClientSize = new System.Drawing.Size(417, 489);
             this.Controls.Add(this.btn_Cancel);
             this.Controls.Add(this.btn_OK);
             this.Controls.Add(this.btn_Delete);
@@ -170,6 +156,5 @@ namespace NppGZipFileViewer.Forms
         private System.Windows.Forms.Button btn_Delete;
         private System.Windows.Forms.Button btn_OK;
         private System.Windows.Forms.Button btn_Cancel;
-        private System.Windows.Forms.CheckBox chk_OpenAsUTF8;
     }
 }

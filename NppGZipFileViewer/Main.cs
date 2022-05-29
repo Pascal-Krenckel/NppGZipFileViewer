@@ -217,7 +217,7 @@ namespace Kbg.NppPluginNET
             }
             catch (Exception ex)
             {
-                Preferences = new Preferences(false, false,".gz");
+                Preferences = new Preferences(false, ".gz");
             }
 
             PluginBase.SetCommand(0, "Toogle Compression", ToogleCompress, false);
