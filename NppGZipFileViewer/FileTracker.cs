@@ -8,11 +8,12 @@ namespace NppGZipFileViewer
     {
         HashSet<IntPtr> zippedFiles = new HashSet<IntPtr>();
         Dictionary<IntPtr, string> filePathes = new Dictionary<IntPtr, string>();
+        Dictionary<IntPtr, Encoding> encodings = new Dictionary<IntPtr, Encoding>();
 
         HashSet<IntPtr> excludedFiles = new HashSet<IntPtr> ();
-        public void Include(IntPtr id, StringBuilder path)
+        public void Include(IntPtr id, StringBuilder path, Encoding encoding)
         {
-            Include(id, path.ToString());
+            Include(id, path.ToString(),encoding);
         }
 
         public void Exclude(IntPtr id, StringBuilder path)
@@ -20,10 +21,13 @@ namespace NppGZipFileViewer
             Exclude(id, path.ToString());
         }
 
-        public void Include(IntPtr id, string path)
+        public void Include(IntPtr id, string path, Encoding encoding)
         {
             excludedFiles.Remove(id);
             zippedFiles.Add(id);
+            if (encodings.ContainsKey(id))
+                encodings[id] = encoding;
+            else encodings.Add(id, encoding);
             if (!filePathes.ContainsKey(id))
                 filePathes.Add(id, path);
             else filePathes[id] = path;
@@ -31,7 +35,7 @@ namespace NppGZipFileViewer
         public void Exclude(IntPtr id, string path)
         {
             zippedFiles.Remove(id);
-
+            encodings.Remove(id);
             excludedFiles.Add(id);
             if (!filePathes.ContainsKey(id))
                 filePathes.Add(id, path);
@@ -44,6 +48,7 @@ namespace NppGZipFileViewer
             zippedFiles.Remove(id);
             excludedFiles.Remove(id);
             filePathes.Remove(id);
+            encodings.Remove(id);
         }
 
         public bool IsIncluded(IntPtr id) { return zippedFiles.Contains(id); }
@@ -52,6 +57,11 @@ namespace NppGZipFileViewer
 
         public string GetStoredPath(IntPtr id) { filePathes.TryGetValue(id, out string path); return path; }
 
+        public Encoding GetEncoding(IntPtr id)
+        {
+            if (encodings.TryGetValue(id, out Encoding encoding)) return encoding;
+            else return new UTF8Encoding(false);
+        }
 
     }
 }
