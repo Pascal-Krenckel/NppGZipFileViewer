@@ -115,17 +115,24 @@ namespace Kbg.NppPluginNET
 
         }
 
-        private static void UpdateStatusbar(IntPtr from)
+        private static void UpdateStatusbar(IntPtr from, bool resetStatusbar = false)
         {            
             if (fileTracker.IsIncluded(from))
-            {
-                
-                var enc = fileTracker.GetEncoding(from);
-
-                string str = $"gzip/{enc.WebName.ToUpper()}({enc.CodePage})";
-
+            {                
+                var enc = fileTracker.GetEncoding(from);                
+                string str = $"gzip/{enc.WebName.ToUpper()}";
+                if (enc.CodePage == 65001 && enc.GetPreamble().Length > 0)
+                    str += " BOM";
                 nppGateway.SetStatusBar(NppMsg.STATUSBAR_UNICODE_TYPE, str);
             }          
+            else if(resetStatusbar)
+            {
+                var enc = NppGZipFileViewerHelper.ToEncoding((NppEncoding)nppGateway.GetBufferEncoding(from));
+                string str = $"{enc.WebName.ToUpper()}";
+                if (enc.CodePage == 65001 && enc.GetPreamble().Length > 0)
+                    str += " BOM";
+                nppGateway.SetStatusBar(NppMsg.STATUSBAR_UNICODE_TYPE, str);
+            }
         }
         private static void UpdateCommandChecked(IntPtr from)
         {
@@ -322,7 +329,7 @@ namespace Kbg.NppPluginNET
             }
 
             UpdateCommandChecked(bufferId);
-            UpdateStatusbar(bufferId);
+            UpdateStatusbar(bufferId, true);
         }
     }
 }
