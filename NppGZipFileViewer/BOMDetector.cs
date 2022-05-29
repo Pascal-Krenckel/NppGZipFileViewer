@@ -40,7 +40,7 @@ public enum NppEncoding
 {
     ANSI = 0,
     UTF8_BOM = 1,
-    UTF16_LE = 2,
-    UTF16_BE = 3,
+    UTF16_BE = 2,
+    UTF16_LE = 3,
     UTF8 = 4,
 }
