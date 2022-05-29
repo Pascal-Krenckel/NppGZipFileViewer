@@ -19,7 +19,8 @@ It depends on your npp version:
 ### Settings
 This plugin has two settings.
 1. 'Try to decompress all files': If set the plugin will try to decompress all files regardless of the extension. All decompressed files will be tracked and if saved automatically compressed. (If the path is still the same)
-2. 'GZip-suffixes': The list of suffixes that schould automatically be decompressed. If a file is saved with such suffix it will also be compressed.
+2. 'Open all ANSI files as UTF-8': If set the plugin changes the selected encoding to utf8 if it the file encoding is detected as ansi. If not set files containing non latin characters (e.g. asian) might be decoded as ANSI files.
+3. 'GZip-suffixes': The list of suffixes that schould automatically be decompressed. If a file is saved with such suffix it will also be compressed.
 
 ### Commands
 In the menubar there are 6 Commands:
