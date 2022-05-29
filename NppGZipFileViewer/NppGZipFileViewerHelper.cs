@@ -127,17 +127,19 @@ namespace NppGZipFileViewer
 
         internal static NppEncoding ToNppEncoding(Encoding encoding)
         {
-            if (encoding == new UTF8Encoding(false))
-                return NppEncoding.UTF8;
-            else if (encoding == new UTF8Encoding(true))
-                return NppEncoding.UTF8_BOM;
-            else if (encoding == new UnicodeEncoding(false, true))
-                return NppEncoding.UTF16_LE;
-            else if (encoding == new UnicodeEncoding(true, true))
-                return NppEncoding.UTF16_BE;
-            else if (encoding == new ASCIIEncoding())
-                return NppEncoding.ANSI;
-            return NppEncoding.UTF8;
+            return encoding?.CodePage switch
+            {
+                // UTF-8
+                65001 => encoding.GetPreamble().Length == 0 ? NppEncoding.UTF8 : NppEncoding.UTF8_BOM,
+                // utf-16be
+                1201 => NppEncoding.UTF16_BE,
+                // utf-16le
+                1200 => NppEncoding.UTF16_LE,
+                // iso-8859-1
+                1252 => NppEncoding.ANSI,
+                // default
+                _ => NppEncoding.UTF8,
+            };
         }
 
         internal static Encoding ResetEncoding()
