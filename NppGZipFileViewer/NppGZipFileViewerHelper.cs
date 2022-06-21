@@ -118,9 +118,9 @@ namespace NppGZipFileViewer
             
             var pinnedArray = GCHandle.Alloc(buffer, GCHandleType.Pinned);
 
-            //Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_CLEARALL, 0, 0);
+            Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_CLEARALL, 0, 0);
             scintillaGateway.SetCodePage(65001);
-            Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_SETTEXT, buffer.Length, pinnedArray.AddrOfPinnedObject());
+            Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_ADDTEXT, buffer.Length, pinnedArray.AddrOfPinnedObject());
             pinnedArray.Free();
             return srcEncoding;
         }
