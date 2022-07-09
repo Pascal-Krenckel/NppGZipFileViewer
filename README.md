@@ -53,6 +53,10 @@ Npp will tell the plugin the old path when notifing "FileBeforeSaved". If based 
 Copy:
 1. Will always be stored as seen in the editor since npp won't raise a FileBeforeSave/FileSaved event.
 
+## Compiling yourself
+
+To compile this plugin with Visual Studio, you need .Net-Framework v4.8 (target framework) and the development tools for .net v3.5 (for Microsoft.Build.Utilities, Version=2.0.0.0)
+
 ## Credits
 Notepad++: https://notepad-plus-plus.org/
 
