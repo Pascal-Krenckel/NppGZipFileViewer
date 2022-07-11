@@ -53,6 +53,11 @@ Npp will tell the plugin the old path when notifing "FileBeforeSaved". If based 
 Copy:
 1. Will always be stored as seen in the editor since npp won't raise a FileBeforeSave/FileSaved event.
 
+## Compiling yourself
+
+To compile this plugin with Visual Studio, you need .Net-Framework v4.8 (target framework) and the development tools for .net v3.5 (for Microsoft.Build.Utilities, Version=2.0.0.0)
+There might be more then one output library, copy all of them into the plugin dir.
+
 ## Credits
 Notepad++: https://notepad-plus-plus.org/
 
@@ -61,3 +66,7 @@ This project uses the notepad++ plugin template from https://github.com/kbilsted
 Visual Studio: https://visualstudio.microsoft.com/de/
 
 The Icons were created by Freepik from www.flaticon.com.
+
+This project used SharpZipLib: https://github.com/icsharpcode/SharpZipLib
+
+
