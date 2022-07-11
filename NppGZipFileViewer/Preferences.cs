@@ -1,41 +1,43 @@
-﻿using System;
+﻿using NppGZipFileViewer.Settings;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
+using System.Reflection;
+using System.Collections;
 
 namespace NppGZipFileViewer
 {
     [Serializable]
     public class Preferences
-    {
-        public bool DecompressAll { get; set; }
+    {        
+        public int Version { get; set; } = 2;
 
-        //public bool OpenAsUTF8 { get; set; }
-        public List<string> Extensions { get; set; }
+        public bool DecompressAll { get; set; }
 
 
         public Preferences() : this(false) { }
-        public Preferences(bool decompressAll,IEnumerable<string> exts)
+        public Preferences(bool decompressAll)
         {
-            Extensions = exts.ToList();
             DecompressAll = decompressAll;
             //OpenAsUTF8 = openAsUTF8;
         }
-        public Preferences(bool decompressAll,params string[] exts) : this(decompressAll, (IEnumerable<string>)exts)
+
+        public Settings.GZipSettings GZipSettings { get; set; } = new Settings.GZipSettings();
+        public Settings.BZip2Settings BZip2Settings { get; set; } = new Settings.BZip2Settings();
+
+        public List<string> CompressionAlgorithms { get; set; } = new List<string>();
+
+        public CompressionSettings GetCompressionBySuffix(string path)
         {
+            return EnumerateCompressions().FirstOrDefault(comp => comp.Extensions.Any(ext => path?.EndsWith(ext,StringComparison.OrdinalIgnoreCase) ?? false));
         }
 
-
-
-        public bool HasGZipSuffix(string path)
+        public CompressionSettings GetCompressionBySuffix(StringBuilder path)
         {
-            return Extensions.Any(suffix => path?.EndsWith(suffix) ?? false);
-        }
-        public bool HasGZipSuffix(StringBuilder path)
-        {
-            return HasGZipSuffix(path.ToString());
+            return GetCompressionBySuffix(path.ToString());
         }
 
         public void Serialize(string path)
@@ -45,8 +47,12 @@ namespace NppGZipFileViewer
         }
         public void Serialize(Stream to)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(Preferences));
-            serializer.Serialize(to, this);
+            try
+            {
+                XmlSerializer serializer = new XmlSerializer(typeof(Preferences));
+                serializer.Serialize(to, this);
+            }
+            catch (Exception ex) { System.Windows.Forms.MessageBox.Show(ex.Message, "Error while serialize settings", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error); }
         }
 
         public static Preferences Deserialize(string path)
@@ -59,10 +65,54 @@ namespace NppGZipFileViewer
         {
             XmlSerializer serializer = new XmlSerializer(typeof(Preferences));
             var pref = serializer.Deserialize(from) as Preferences;
-            pref.Extensions = pref.Extensions.Distinct().ToList();
+            pref.CompressionAlgorithms = pref.CompressionAlgorithms.Distinct().ToList();
+            if(pref.Version < 2)
+            {
+                pref.GZipSettings = Preferences.Default.GZipSettings;
+                pref.BZip2Settings = Default.BZip2Settings;
+            }
+
             return pref;
         }
 
+        public CompressionSettings GetNextCompressor(string compressionAlgorithm, CompressionSettings compressionBySuffix)
+        {
+            string cAlg;
+            if (string.IsNullOrWhiteSpace(compressionAlgorithm))
+                cAlg = compressionBySuffix?.CompressionAlgorithm ?? CompressionAlgorithms.FirstOrDefault();
+            else
+                cAlg = (compressionAlgorithm != compressionBySuffix?.CompressionAlgorithm ?
 
+                    CompressionAlgorithms
+                    .SkipWhile(alg => alg != compressionAlgorithm)
+                    .Skip(1)
+                    :
+                    CompressionAlgorithms
+                    )
+                    .FirstOrDefault(algName => algName != compressionBySuffix?.CompressionAlgorithm);
+
+
+            return EnumerateCompressions().FirstOrDefault(comp => comp.CompressionAlgorithm == cAlg);
+
+        }
+
+        public static Preferences Default
+        {
+            get
+            {
+                Preferences preferences = new Preferences(false);
+                preferences.CompressionAlgorithms = preferences.EnumerateCompressions().Select(c => c.CompressionAlgorithm).ToList();
+                preferences.GZipSettings.Extensions.AddRange(new[] { ".gz", ".gzip" });
+                preferences.BZip2Settings.Extensions.AddRange(new[] { ".bz2", ".bzip2" });
+                return preferences;
+            }
+        }
+
+        public IEnumerable<CompressionSettings> EnumerateCompressions()
+        {
+            return GetType().GetProperties().Where(m => m.PropertyType.IsSubclassOf(typeof(CompressionSettings)))                
+                    .Select(m => (m.GetValue(this) as CompressionSettings));         
+
+        }
     }
 }
