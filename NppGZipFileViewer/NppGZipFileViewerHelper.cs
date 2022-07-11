@@ -1,4 +1,5 @@
 ﻿using Kbg.NppPluginNET.PluginInfrastructure;
+using NppGZipFileViewer.Settings;
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -11,7 +12,12 @@ namespace NppGZipFileViewer
     {
         internal static MemoryStream GetContentStream(ScNotification notification, StringBuilder path)
         {
-            Win32.SendMessage(PluginBase.nppData._nppHandle, (uint)NppMsg.NPPM_SWITCHTOFILE, notification.Header.IdFrom, path);
+            return GetContentStream(notification.Header.IdFrom, path.ToString());
+        }
+
+        private static MemoryStream GetContentStream(IntPtr idFrom, string path)
+        {
+            Win32.SendMessage(PluginBase.nppData._nppHandle, (uint)NppMsg.NPPM_SWITCHTOFILE, idFrom, path);
 
             int data_length = (int)Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_GETLENGTH, 0, 0);
             if (data_length <= 0)
@@ -28,19 +34,7 @@ namespace NppGZipFileViewer
 
         internal static MemoryStream GetContentStream(ScNotification notification, string path)
         {
-            Win32.SendMessage(PluginBase.nppData._nppHandle, (uint)NppMsg.NPPM_SWITCHTOFILE, notification.Header.IdFrom, path);
-
-            int data_length = (int)Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_GETLENGTH, 0, 0);
-            if (data_length <= 0)
-                return new MemoryStream();
-
-            var pData = Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_GETCHARACTERPOINTER, 0, 0);
-            if (pData == IntPtr.Zero)
-                return new MemoryStream();
-            MemoryStream memoryStream = new MemoryStream();
-            memoryStream.SetLength(data_length);
-            Marshal.Copy(pData, memoryStream.GetBuffer(), 0, data_length);
-            return memoryStream;
+            return GetContentStream(notification.Header.IdFrom, path);
         }
 
         internal static MemoryStream GetCurrentContentStream()
@@ -59,11 +53,10 @@ namespace NppGZipFileViewer
             return memoryStream;
         }
 
-        internal static MemoryStream Decode(Stream gzStream)
+        internal static MemoryStream Decode(Stream gzStream, CompressionSettings compression)
         {
-            using GZipStream decoder = new GZipStream(gzStream, CompressionMode.Decompress, true);
             MemoryStream decodedStream = new MemoryStream();
-            decoder.CopyTo(decodedStream);
+            compression.Decompress(gzStream, decodedStream);
             return decodedStream;
         }
 
@@ -167,17 +160,17 @@ namespace NppGZipFileViewer
             pinnedArray.Free();
         }
 
-        internal static MemoryStream Encode(Stream stream, Encoding dstEncoding)
+        internal static MemoryStream Encode(Stream stream, Encoding dstEncoding, CompressionSettings compression)
         {
             ScintillaGateway scintillaGateway = new ScintillaGateway(PluginBase.GetCurrentScintilla());
             MemoryStream encodedStream = new MemoryStream();
-            using GZipStream encoder = new GZipStream(encodedStream, CompressionMode.Compress, true);
+            using Stream compressionStream = compression.GetCompressionStream(encodedStream);
 
             Encoding srcEncoding = Encoding.GetEncoding(scintillaGateway.GetCodePage());
            
 
             if (srcEncoding == dstEncoding)
-                stream.CopyTo(encoder);
+                stream.CopyTo(compressionStream);
             else
             {
                 using MemoryStream mem = new MemoryStream();
@@ -186,9 +179,9 @@ namespace NppGZipFileViewer
                 if (dstEncoding != new UTF8Encoding(false))
                 {
                     var preamble = dstEncoding.GetPreamble();
-                    encoder.Write(preamble, 0, preamble.Length);
+                    compressionStream.Write(preamble, 0, preamble.Length);
                 }
-                encoder.Write(buffer,0, buffer.Length);
+                compressionStream.Write(buffer,0, buffer.Length);
             }
             return encodedStream;
         }
