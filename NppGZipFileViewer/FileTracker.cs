@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NppGZipFileViewer.Settings;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -9,11 +10,13 @@ namespace NppGZipFileViewer
         HashSet<IntPtr> zippedFiles = new HashSet<IntPtr>();
         Dictionary<IntPtr, string> filePathes = new Dictionary<IntPtr, string>();
         Dictionary<IntPtr, Encoding> encodings = new Dictionary<IntPtr, Encoding>();
+        Dictionary<IntPtr, CompressionSettings> compression = new Dictionary<IntPtr, CompressionSettings>();
+
 
         HashSet<IntPtr> excludedFiles = new HashSet<IntPtr> ();
-        public void Include(IntPtr id, StringBuilder path, Encoding encoding)
+        public void Include(IntPtr id, StringBuilder path, Encoding encoding, CompressionSettings compressor)
         {
-            Include(id, path.ToString(),encoding);
+            Include(id, path.ToString(),encoding, compressor);
         }
 
         public void Exclude(IntPtr id, StringBuilder path)
@@ -21,7 +24,7 @@ namespace NppGZipFileViewer
             Exclude(id, path.ToString());
         }
 
-        public void Include(IntPtr id, string path, Encoding encoding)
+        public void Include(IntPtr id, string path, Encoding encoding, CompressionSettings compressor)
         {
             excludedFiles.Remove(id);
             zippedFiles.Add(id);
@@ -31,12 +34,17 @@ namespace NppGZipFileViewer
             if (!filePathes.ContainsKey(id))
                 filePathes.Add(id, path);
             else filePathes[id] = path;
+            if (!compression.ContainsKey(id))
+                compression.Add(id, compressor);
+            else compression[id] = compressor;
+
         }
         public void Exclude(IntPtr id, string path)
         {
             zippedFiles.Remove(id);
             encodings.Remove(id);
             excludedFiles.Add(id);
+            compression.Remove(id);
             if (!filePathes.ContainsKey(id))
                 filePathes.Add(id, path);
             else filePathes[id] = path;
@@ -57,10 +65,17 @@ namespace NppGZipFileViewer
 
         public string GetStoredPath(IntPtr id) { filePathes.TryGetValue(id, out string path); return path; }
 
+        public CompressionSettings GetCompressor(IntPtr id)
+        {
+            if(compression.TryGetValue(id, out CompressionSettings comp))
+                return comp;
+            else return null;
+        }
+
         public Encoding GetEncoding(IntPtr id)
         {
             if (encodings.TryGetValue(id, out Encoding encoding)) return encoding;
-            else return new UTF8Encoding(false);
+            else return null;
         }
 
     }
