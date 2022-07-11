@@ -124,6 +124,8 @@ Notepad++: https://notepad-plus-plus.org/
 
 This project uses the notepad++ plugin template from https://github.com/kbilsted/NotepadPlusPlusPluginPack.Net.
 
-The Icons were created by Freepik from www.flaticon.com.</value>
+The Icons were created by Freepik from www.flaticon.com.
+
+This plugin uses SharpZipLib: https://github.com/icsharpcode/SharpZipLib</value>
   </data>
 </root>
