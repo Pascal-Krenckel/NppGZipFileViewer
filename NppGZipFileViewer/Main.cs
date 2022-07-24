@@ -65,14 +65,16 @@ namespace Kbg.NppPluginNET
                             compressionBeforeSave[notification.Header.IdFrom] = compr;
                         else
                             compressionBeforeSave.Add(notification.Header.IdFrom, compr);
-
-                        if (compr == null) return;
-
-                        scintillaGateway.BeginUndoAction();
+                        
                         if (cursorPosition.ContainsKey(notification.Header.IdFrom))
                             cursorPosition[notification.Header.IdFrom] = scintillaGateway.GetCurrentPos();
                         else
                             cursorPosition.Add(notification.Header.IdFrom, scintillaGateway.GetCurrentPos());
+
+                        if (compr == null) return;
+
+                        scintillaGateway.BeginUndoAction();
+                       
                         
                         using var contentStream = NppGZipFileViewerHelper.GetContentStream(notification, path);
                         using var encodedContentStream = NppGZipFileViewerHelper.Encode(contentStream, fileTracker.GetEncoding(notification.Header.IdFrom) ?? new UTF8Encoding(false),compr);
