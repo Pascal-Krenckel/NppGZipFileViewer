@@ -251,7 +251,7 @@ namespace Kbg.NppPluginNET
             // from gz to gz or non gz to non gz, use tracker
 
             if (fileTracker.IsIncluded(notification.Header.IdFrom))
-                return Preferences.GetCompressionBySuffix(newPath);
+                return fileTracker.GetCompressor(notification.Header.IdFrom);
 
             if (fileTracker.IsExcluded(notification.Header.IdFrom))
                 return null;
