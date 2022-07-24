@@ -152,8 +152,6 @@ namespace NppGZipFileViewer
             NotepadPPGateway nppGateway = new NotepadPPGateway();
             ScintillaGateway scintillaGateway = new ScintillaGateway(PluginBase.GetCurrentScintilla());
             var pinnedArray = GCHandle.Alloc(encodedContentStream.GetBuffer(), GCHandleType.Pinned);
-
-            //Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_CLEARALL, 0, 0);
             
             scintillaGateway.ClearAll();
             Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_ADDTEXT, (int)encodedContentStream.Length, pinnedArray.AddrOfPinnedObject());            

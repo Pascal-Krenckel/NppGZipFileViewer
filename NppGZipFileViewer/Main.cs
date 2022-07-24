@@ -77,8 +77,12 @@ namespace Kbg.NppPluginNET
                        
                         
                         using var contentStream = NppGZipFileViewerHelper.GetContentStream(notification, path);
-                        using var encodedContentStream = NppGZipFileViewerHelper.Encode(contentStream, fileTracker.GetEncoding(notification.Header.IdFrom) ?? new UTF8Encoding(false),compr);
+                        var fileEncoding = fileTracker.GetEncoding(notification.Header.IdFrom) ?? new UTF8Encoding(false);
+                        using var encodedContentStream = NppGZipFileViewerHelper.Encode(contentStream, fileEncoding,compr);
                         NppGZipFileViewerHelper.SetEncodedText(encodedContentStream);
+                        var currentNppEncoding = (NppEncoding)nppGateway.GetBufferEncoding(notification.Header.IdFrom);
+                        //if (NppGZipFileViewerHelper.ToNppEncoding(fileEncoding) != currentNppEncoding)
+                        //    nppGateway.SendMenuEncoding(NppGZipFileViewerHelper.ToNppEncoding(fileEncoding));
                         scintillaGateway.EndUndoAction();
                     }
                     catch (Exception ex) { MessageBox.Show(ex.Message, "Error at FileBeforeSave", MessageBoxButtons.OK, MessageBoxIcon.Error); }
