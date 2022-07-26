@@ -18,14 +18,24 @@ namespace Kbg.NppPluginNET
     {
         static Main()
         {
-            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;            
+            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
         }
 
         private static System.Reflection.Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
+            var executingAssemblyName = Assembly.GetExecutingAssembly().GetName().Name + ".dll";
+            var targetAssemblyName = new AssemblyName(args.Name).Name + ".dll";
+            using var stream =  Assembly.GetExecutingAssembly().GetManifestResourceStream(executingAssemblyName + "." + targetAssemblyName);
+            if (stream != null)
+            {
+                using MemoryStream ms = new MemoryStream();
+                stream.CopyTo(ms);
+                return Assembly.Load(ms.GetBuffer());
+            }
+
             var p = AppDomain.CurrentDomain.BaseDirectory;
             string path = System.Reflection.Assembly.GetCallingAssembly().Location;
-            string libPath = Path.Combine(Path.GetDirectoryName(path), new AssemblyName(args.Name).Name+".dll");
+            string libPath = Path.Combine(Path.GetDirectoryName(path), targetAssemblyName);
             if (File.Exists(libPath))
                 return System.Reflection.Assembly.LoadFile(libPath);
             else return null;

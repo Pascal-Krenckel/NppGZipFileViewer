@@ -94,7 +94,7 @@
     <Reference Include="ICSharpCode.SharpZipLib, Version=1.3.3.11, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpZipLib.1.3.3\lib\net45\ICSharpCode.SharpZipLib.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
-      <Private>True</Private>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -218,6 +218,7 @@
     <None Include="icons\gzip-filled64.png" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="dll\ICSharpCode.SharpZipLib.dll" />
     <Content Include="gzip.ico" />
   </ItemGroup>
   <ItemGroup />
