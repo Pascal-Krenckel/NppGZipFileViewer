@@ -331,54 +331,32 @@ namespace Kbg.NppPluginNET
         
         private static void Decompress()
         {
-            
-            try
+            DecompressForm decompressForm = new DecompressForm();
+            if(decompressForm.ShowDialog() == DialogResult.OK)
             {
                 IntPtr bufferId = nppGateway.GetCurrentBufferId();
-                var compr = fileTracker.GetCompressor(bufferId);
-                if (compr == null)
-                {
-                    MessageBox.Show("Please select your compression first!");
-                    return;
-                }
-
+                var compr = decompressForm.CompressionSettings;
                 using var contentStream = NppGZipFileViewerHelper.GetCurrentContentStream();
                 using var decodedContentStream = NppGZipFileViewerHelper.Decode(contentStream, compr);
-                Encoding encoding = NppGZipFileViewerHelper.SetDecodedText(decodedContentStream);
-
-                nppGateway.SendMenuEncoding(NppEncoding.UTF8);
-                Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_GOTOPOS, 0, 0);
-                Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_EMPTYUNDOBUFFER, 0, 0);
-                Win32.SendMessage(PluginBase.GetCurrentScintilla(), SciMsg.SCI_SETSAVEPOINT, 0, 0);                
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Couldn't decompress file.\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+                var enc = NppGZipFileViewerHelper.SetDecodedText(decodedContentStream);
+                var nppEnc = NppGZipFileViewerHelper.ToNppEncoding(enc);
+                nppGateway.SendMenuEncoding(nppEnc);
+            }         
         }
 
         private static void Compress()
-        {            
-            IntPtr bufferId = nppGateway.GetCurrentBufferId();
-            var compr = fileTracker.GetCompressor(bufferId);
-            if (compr == null)
+        {      
+            CompressForm compressForm = new CompressForm();
+            if(compressForm.ShowDialog() == DialogResult.OK)
             {
-                MessageBox.Show("Please select your compression first!");
-                return;
-            }
-
-            var path = nppGateway.GetCurrentFilePath();
-            using var contentStream = NppGZipFileViewerHelper.GetCurrentContentStream();
-            using var encodedContentStream = NppGZipFileViewerHelper.Encode(contentStream, fileTracker.GetEncoding(bufferId) ?? new UTF8Encoding(false), compr);
-            NppGZipFileViewerHelper.SetEncodedText(encodedContentStream);
-
-
-            fileTracker.Exclude(bufferId,path);
-
-            UpdateStatusbar(bufferId, true);
-            UpdateCommandChecked(bufferId);
-
-            scintillaGateway.SetSavePoint();
+                IntPtr bufferId = nppGateway.GetCurrentBufferId();
+                var compr = compressForm.CompressionSettings;
+                using var contentStream = NppGZipFileViewerHelper.GetCurrentContentStream();
+                using var encodedContentStream = NppGZipFileViewerHelper.Encode(contentStream, fileTracker.GetEncoding(bufferId) ?? new UTF8Encoding(false), compr);
+                NppGZipFileViewerHelper.SetEncodedText(encodedContentStream);
+                nppGateway.SendMenuEncoding(NppEncoding.UTF8); // Set MenuEncoding to match scintillas internal buffer encoding
+                // if it's not UTF-8... who cares
+            }          
         }
 
         private static void OpenCredits()
