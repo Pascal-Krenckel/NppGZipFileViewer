@@ -20,16 +20,21 @@ It depends on your npp version:
 ### Settings
 This plugin has two settings.
 1. 'Try to decompress all files': If set the plugin will try to decompress all files regardless of the extension. All decompressed files will be tracked and if saved automatically compressed. (If the path is still the same)
-2. 'GZip-suffixes': The list of suffixes that schould automatically be decompressed. If a file is saved with such suffix it will also be compressed.
+2. 'Compression algorithms': The ordered list of the compression algorithms. This does not affect file detection or 'decompress all'. It only affects the behaviour of the icon or 'Toogle Compression'. When clicking on the icon based on the suffix the appropriate compression will be chosen.  Afterwards you can iterate through all algorithms in the list by clicking again.
+
+Selecting a algorithm and clicking on 'Settings' allows to manage the algorithm specific settings.
+4. 'Suffixes': The list of suffixes that schould automatically be decompressed. If a file is saved with such suffix it will also be compressed. This settings is part of every compression.
+5. Other algorithm specific settings
 
 ### Commands
 In the menubar there are 6 Commands:
-1. Toggle Compression: If clicked it will mark a compressed (tracked) file as uncompressed (excluded) and a uncompressed file as compressed (tracked). Makes the buffer dirty. It's the same command as the icon in the tool bar. It is marked if the current file is selected as compressed. If you store the file it will automatically store the file compressed.
-2. Make Compressed: Compresses the current file text in the editor. This will always exclude the file from automatically compress on save. You can toggle it on by using command 1.
-3. Make Uncompressed: Uncompresses the current file in the editor. This will alays exclude the file from automatically compress on save. You can toggle it on by using command 1.
+1. Toggle Compression (same as clicking on the icon): Changes the compression algorithm used when storing this file. You can iteratre through different algorithms again. The order is dertemined by the order in the settings. If the file has a algorithm specific suffix it will select this algorithm first. By click again after the last algorithm was selected, the file compression will be disable for this file.
+2. Compress: Compresses the current file text in the editor. 
+3. Decompressed: Decompresses the current text in the editor.
 4. Settings: Opens the settings dialog.
 5. About: Opens the about dialog.
 6. Credits: Opens the credits dialog.
+7. '*Compression Algorithm*': Sets the compression for this specific file or removes it.
 
 ### (De)Compression-File-Rules
 On Open:
@@ -43,12 +48,11 @@ Save (same path):
 
 Save (diffrent path):
 Npp will tell the plugin the old path when notifing "FileBeforeSaved". If based on the suffix the compression toggles it might be saved two times.
-1. from gz to non-gz: This file won't be compressed. If you want it to be compressed: after the save, toggle the compression and save the file again.
-2. from non-gz to gz: This file will always be compressed. If you don't want to compress it: after the save, toggle the compression and save the file again.
-3. same suffix type:<br/>
-   1. If tracked, save compressed.
+1. from suffix type to other suffix type: This file will be compressed based on the new suffix.
+2. same suffix type:<br/>
+   1. If tracked, save compressed..
    2. If excluded, save uncompressed.
-   3. If ingored go by suffix type.
+   3. If neither go by suffix type.
    
 Copy:
 1. Will always be stored as seen in the editor since npp won't raise a FileBeforeSave/FileSaved event.
