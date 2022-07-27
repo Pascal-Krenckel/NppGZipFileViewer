@@ -362,7 +362,8 @@ namespace Kbg.NppPluginNET
                 IntPtr bufferId = nppGateway.GetCurrentBufferId();
                 var compr = compressForm.CompressionSettings;
                 using var contentStream = NppGZipFileViewerHelper.GetCurrentContentStream();
-                using var encodedContentStream = NppGZipFileViewerHelper.Encode(contentStream, fileTracker.GetEncoding(bufferId) ?? new UTF8Encoding(false), compr);
+                var enc = fileTracker.GetEncoding(bufferId) ?? NppGZipFileViewerHelper.ToEncoding((NppEncoding) nppGateway.GetBufferEncoding(bufferId));
+                using var encodedContentStream = NppGZipFileViewerHelper.Encode(contentStream, enc, compr);
                 NppGZipFileViewerHelper.SetEncodedText(encodedContentStream);
                 nppGateway.SendMenuEncoding(NppEncoding.UTF8); // Set MenuEncoding to match scintillas internal buffer encoding
                 // if it's not UTF-8... who cares
