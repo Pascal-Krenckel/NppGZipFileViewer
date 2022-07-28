@@ -1,7 +1,11 @@
 # NppGZipFileViewer
-A Notepad++ plugin to open and save files in the gzip format.
+A Notepad++ plugin to open and save files in the gzip or bzip2 format.
 It's written in C# with Visual Studio.
 Don't change the encoding of a zipped file. Change the file to uncompressed, then change the encoding and toggle compression on again.
+
+## Compression algorithms
+* GZip
+* Bzip2
 
 ## How to use
 
