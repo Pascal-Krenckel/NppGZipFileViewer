@@ -288,7 +288,7 @@ namespace Kbg.NppPluginNET
 
                 return encoding;
             }
-            catch (Exception ex)
+            catch
             {
                 return null;
                     
@@ -309,7 +309,7 @@ namespace Kbg.NppPluginNET
             {
                 Preferences = Preferences.Deserialize(iniFilePath);                
             }
-            catch (Exception ex)
+            catch
             {
                 Preferences = Preferences.Default;
             }           
