@@ -195,7 +195,7 @@ namespace Kbg.NppPluginNET
                     return;
                 }
             }
-            if (Preferences.DecompressAll)
+            if (Preferences.DecompressAll && gzContentStream.Length > 0)
                 foreach (var compression in Preferences.EnumerateCompressions())
                 {
                     gzContentStream.Seek(0, SeekOrigin.Begin);
