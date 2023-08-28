@@ -16,7 +16,7 @@ It depends on your npp version:
 
 Copy the dll to "%npp_install_path%\\plugins\\%name%\\%name%.dll"
 
-Make sure the names match, because npp loads the dll as a plugin based on the directory name.
+Make sure the names match, because npp loads the dll based on the directory name.
 
 ### Terminus:
 1. tracked file: A tracked file is a file that was decompressed or is selected manually for compression. The Icon and Menu Entry will be checked for this file.
