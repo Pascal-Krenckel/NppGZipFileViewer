@@ -128,6 +128,8 @@ The Icons were created by Freepik from www.flaticon.com.
 
 This plugin uses SharpZipLib: https://github.com/icsharpcode/SharpZipLib
 
-This plugin uses Joveler.Compression.XZ: https://github.com/ied206/Joveler.Compression</value>
+This plugin uses Joveler.Compression.XZ: https://github.com/ied206/Joveler.Compression
+
+This project uses ZstdSharp: https://github.com/oleg-st/ZstdSharp</value>
   </data>
 </root>

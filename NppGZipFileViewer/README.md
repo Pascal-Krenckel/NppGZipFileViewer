@@ -79,3 +79,5 @@ This project uses SharpZipLib: https://github.com/icsharpcode/SharpZipLib
 
 
 This project uses Joveler.Compression.XZ: https://github.com/ied206/Joveler.Compression
+
+This project uses ZstdSharp: https://github.com/oleg-st/ZstdSharp
