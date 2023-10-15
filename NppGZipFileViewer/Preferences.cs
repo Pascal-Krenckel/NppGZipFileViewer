@@ -13,7 +13,8 @@ namespace NppGZipFileViewer
     [Serializable]
     public class Preferences
     {        
-        public int Version { get; set; } = 4;
+        public const int VERSION = 4;
+        public int Version { get; set; } = VERSION;
 
         public bool DecompressAll { get; set; }
 
@@ -36,7 +37,7 @@ namespace NppGZipFileViewer
 
         public CompressionSettings GetCompressionBySuffix(string path)
         {
-            return EnumerateCompressions().FirstOrDefault(comp => comp.Extensions.Any(ext => path?.EndsWith(ext,StringComparison.OrdinalIgnoreCase) ?? false));
+            return EnumerateCompressions().FirstOrDefault(comp => comp.Extensions.Any(ext => path?.EndsWith(ext, StringComparison.OrdinalIgnoreCase) ?? false));
         }
 
         public CompressionSettings GetCompressionBySuffix(StringBuilder path)
@@ -70,20 +71,20 @@ namespace NppGZipFileViewer
             XmlSerializer serializer = new XmlSerializer(typeof(Preferences));
             var pref = serializer.Deserialize(from) as Preferences;
             pref.CompressionAlgorithms = pref.CompressionAlgorithms.Distinct().ToList();
-            if(pref.Version < 2)
+            if (pref.Version < 2)
             {
                 pref.GZipSettings = Preferences.Default.GZipSettings;
                 pref.BZip2Settings = Default.BZip2Settings;
             }
-            if(pref.Version < 3)
+            if (pref.Version < 3)
             {
                 pref.XZSettings = Preferences.Default.XZSettings;
             }
-            if(pref.Version < 4)
+            if (pref.Version < 4)
             {
                 pref.ZstdSettings = Preferences.Default.ZstdSettings;
             }
-
+            pref.Version = Preferences.VERSION;
             return pref;
         }
 
