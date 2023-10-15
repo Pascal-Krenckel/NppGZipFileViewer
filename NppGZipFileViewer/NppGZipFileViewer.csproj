@@ -234,6 +234,8 @@
     <None Include="app.config" />
     <None Include="icons\gzip.png" />
     <None Include="packages.config" />
+    <None Include="PluginInfrastructure\DllExport\NppPlugin.DllExport.targets" />
+    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <None Include="icons\gzip-filled16.png" />
