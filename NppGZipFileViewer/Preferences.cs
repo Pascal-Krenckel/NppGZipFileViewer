@@ -13,7 +13,7 @@ namespace NppGZipFileViewer
     [Serializable]
     public class Preferences
     {        
-        public int Version { get; set; } = 3;
+        public int Version { get; set; } = 4;
 
         public bool DecompressAll { get; set; }
 
@@ -29,6 +29,8 @@ namespace NppGZipFileViewer
         public Settings.BZip2Settings BZip2Settings { get; set; } = new Settings.BZip2Settings();
 
         public Settings.XZSettings XZSettings { get; set; } = new XZSettings();
+
+        public Settings.ZstdSettings ZstdSettings { get; set; } = new ZstdSettings();
 
         public List<string> CompressionAlgorithms { get; set; } = new List<string>();
 
@@ -77,6 +79,10 @@ namespace NppGZipFileViewer
             {
                 pref.XZSettings = Preferences.Default.XZSettings;
             }
+            if(pref.Version < 4)
+            {
+                pref.ZstdSettings = Preferences.Default.ZstdSettings;
+            }
 
             return pref;
         }
@@ -111,6 +117,7 @@ namespace NppGZipFileViewer
                 preferences.GZipSettings.Extensions.AddRange(new[] { ".gz", ".gzip" });
                 preferences.BZip2Settings.Extensions.AddRange(new[] { ".bz2", ".bzip2" });
                 preferences.XZSettings.Extensions.AddRange(new[] { ".xz" });
+                preferences.ZstdSettings.Extensions.AddRange(new[] { ".zst" });
                 return preferences;
             }
         }
