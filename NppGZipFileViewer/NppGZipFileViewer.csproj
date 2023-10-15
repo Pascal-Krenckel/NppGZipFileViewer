@@ -200,6 +200,18 @@
     <Compile Include="Forms\Credits.Designer.cs">
       <DependentUpon>Credits.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\ZstdSettingsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ZstdSettingsDialog.Designer.cs">
+      <DependentUpon>ZstdSettingsDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\XZSettingsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\XZSettingsDialog.Designer.cs">
+      <DependentUpon>XZSettingsDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\GZipSettingsDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -259,6 +271,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Credits.resx">
       <DependentUpon>Credits.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ZstdSettingsDialog.resx">
+      <DependentUpon>ZstdSettingsDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\XZSettingsDialog.resx">
+      <DependentUpon>XZSettingsDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\GZipSettingsDialog.resx">
       <DependentUpon>GZipSettingsDialog.cs</DependentUpon>

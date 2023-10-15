@@ -96,6 +96,18 @@ namespace NppGZipFileViewer.Forms
                     if (bZip2SettingsDialog.ShowDialog() == DialogResult.OK)
                         Preferences.BZip2Settings = bZip2SettingsDialog.BZip2Settings;
                     break;
+                case "xz":
+                    XZSettingsDialog xzSettingsDialog = new XZSettingsDialog();
+                    xzSettingsDialog.XZSettings = Preferences.XZSettings;
+                    if(xzSettingsDialog.ShowDialog() == DialogResult.OK)
+                        Preferences.XZSettings = xzSettingsDialog.XZSettings;
+                    break;
+                case "zstd":
+                    ZstdSettingsDialog zstdSettingsDialog = new ZstdSettingsDialog();
+                    zstdSettingsDialog.ZstdSettings = Preferences.ZstdSettings;
+                    if (zstdSettingsDialog.ShowDialog() == DialogResult.OK)
+                        Preferences.ZstdSettings = zstdSettingsDialog.ZstdSettings;
+                    break;
             }
         }
 
