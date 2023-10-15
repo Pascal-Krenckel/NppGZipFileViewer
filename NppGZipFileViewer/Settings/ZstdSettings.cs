@@ -10,10 +10,10 @@ namespace NppGZipFileViewer.Settings
     [Serializable]
     public class ZstdSettings : CompressionSettings
     {
-        public int CompressionLevel { get; set; } = 0;
-        public int BufferSize { get; set; } = 0;
+        public int CompressionLevel { get; set; } = 11;
+        public int BufferSize { get; set; } = 1024*1024;
 
-        public override string CompressionAlgorithm => "Zstd";
+        public override string CompressionAlgorithm => "zstd";
 
         public override Stream GetCompressionStream(Stream outStream)
         {
