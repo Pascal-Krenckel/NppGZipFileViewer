@@ -313,8 +313,8 @@ namespace Kbg.NppPluginNET
             {
                 Preferences = Preferences.Default;
             }           
-
-
+            
+            
             PluginBase.SetCommand(0, "Toggle Compression", ToogleCompress, false);
             PluginBase.SetCommand(1, "---", null);
             PluginBase.SetCommand(2, "Compress", Compress, false);
