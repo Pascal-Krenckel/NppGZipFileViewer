@@ -14,6 +14,10 @@ It depends on your npp version:
 1. for x64 use ...X64.dll
 2. for x86 use ...X86.dll or ....dll
 
+Copy the dll to "%npp_install_path%\\plugins\\%name%\\%name%.dll"
+
+Make sure the names match, because npp loads the dll based on the directory name.
+
 ### Terminus:
 1. tracked file: A tracked file is a file that was decompressed or is selected manually for compression. The Icon and Menu Entry will be checked for this file.
 2. excluded file: A file for which the compression was manually disabled.
