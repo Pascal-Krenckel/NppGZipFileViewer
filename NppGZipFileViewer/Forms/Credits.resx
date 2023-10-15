@@ -126,6 +126,8 @@ This project uses the notepad++ plugin template from https://github.com/kbilsted
 
 The Icons were created by Freepik from www.flaticon.com.
 
-This plugin uses SharpZipLib: https://github.com/icsharpcode/SharpZipLib</value>
+This plugin uses SharpZipLib: https://github.com/icsharpcode/SharpZipLib
+
+This plugin uses Joveler.Compression.XZ: https://github.com/ied206/Joveler.Compression</value>
   </data>
 </root>
