@@ -1,0 +1,52 @@
+name: CI_build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        build_configuration: [Release, Debug]
+        build_platform: [x64, x86]
+        
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1
+
+    - name: Setup NuGet
+      uses: nuget/setup-nuget@v1
+
+    - name: Nuget restore solution
+      working-directory: .
+      run: nuget restore NppGZipFileViewer.sln
+
+    - name: MSBuild of plugin dll
+      working-directory: .\NppGZipFileViewer
+      run: msbuild NppGZipFileViewer.csproj /m /p:configuration="${{ matrix.build_configuration }}" /p:platform="${{ matrix.build_platform }}"
+
+    - uses: olegtarasov/get-tag@v2.1.2
+      id: tagName
+
+    - name: zip artifacts for ${{ matrix.build_platform }}
+      if: matrix.build_configuration == 'Release'
+      run: 7z a NppGZipFileViewer_${{ steps.tagName.outputs.tag }}_${{ matrix.build_platform }}.zip .\NppGZipFileViewer\bin\${{ matrix.build_configuration }}-${{ matrix.build_platform }}/*
+
+    - name: Archive artifacts for ${{ matrix.build_platform }}
+      if: matrix.build_configuration == 'Release'
+      uses: actions/upload-artifact@v3
+      with:
+          name: NppGZipFileViewer_${{ steps.tagName.outputs.tag }}_${{ matrix.build_platform }}.zip
+          path: NppGZipFileViewer_${{ steps.tagName.outputs.tag }}_${{ matrix.build_platform }}.zip
+
+    - name: Create release on tagging
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+          files: NppGZipFileViewer_${{ steps.tagName.outputs.tag }}_${{ matrix.build_platform }}.zip
+
