@@ -11,12 +11,11 @@ Don't change the encoding of a zipped file. Change the file to uncompressed, the
 
 ### Dll-Files
 It depends on your npp version:
-1. for x64 use ...X64.dll
-2. for x86 use ...X86.dll or ....dll
+1. for x64 use ...X64.zip
+2. for x86 use ...X86.zip
 
-Copy the dll to "%npp_install_path%\\plugins\\%name%\\%name%.dll"
-
-Make sure the names match, because npp loads the dll based on the directory name.
+Unzip and copy the folder to "%npp_install_path%\\plugins"
+Make sure the plugin name must match, the plugin's main dll name. (Should already be the case)
 
 ### Terminus:
 1. tracked file: A tracked file is a file that was decompressed or is selected manually for compression. The Icon and Menu Entry will be checked for this file.
@@ -75,10 +74,13 @@ Notepad++: https://notepad-plus-plus.org/
 
 This project uses the notepad++ plugin template from https://github.com/kbilsted/NotepadPlusPlusPluginPack.Net.
 
-Visual Studio: https://visualstudio.microsoft.com/de/
-
 The Icons were created by Freepik from www.flaticon.com.
 
-This project used SharpZipLib: https://github.com/icsharpcode/SharpZipLib
+This plugin uses SharpZipLib: https://github.com/icsharpcode/SharpZipLib
+
+This plugin uses Joveler.Compression.XZ: https://github.com/ied206/Joveler.Compression
+
+This project uses ZstdSharp: https://github.com/oleg-st/ZstdSharp
+
 
 
