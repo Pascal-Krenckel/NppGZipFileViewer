@@ -13,6 +13,7 @@ Don't change the encoding of a zipped file. Change the file to uncompressed, the
 It depends on your npp version:
 1. for x64 use ...X64.zip
 2. for x86 use ...X86.zip
+3. In the ...top.zip files the files are directly in the zips root folder without an additinal directory.
 
 Unzip and copy the folder to "%npp_install_path%\\plugins"
 Make sure the plugin name must match, the plugin's main dll name. (Should already be the case)
